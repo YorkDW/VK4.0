@@ -5,7 +5,6 @@ def dump(obj):
         json.dump(obj, file, ensure_ascii = False, indent = 2)
     print("dumped")
 
-my_id = 0 # под вопросом, возможно, уже есть в боте
 log = logging.getLogger("test")
 talker = {
     "enabled" : False,
@@ -14,3 +13,12 @@ talker = {
     "target" : 0
 }
 vault = {}
+config = {}
+
+def set_config(con):
+    config = con.copy()
+
+def get_config():
+    return config
+
+ 
