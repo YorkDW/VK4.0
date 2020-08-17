@@ -5,6 +5,18 @@ def dump(obj):
         json.dump(obj, file, ensure_ascii = False, indent = 2)
     print("dumped")
 
+async def execue(api, data_list):
+    result = []
+    ex_count = 2
+    for i in range(0,len(data_list), ex_count):
+        requests = ','.join(
+            [f"API.{method}({str(data)})" for method, data in data_list[i:i+ex_count]]
+            )
+        code = f"return [{requests}];"
+        result += (await api.execute(code=code)).response
+
+    return result
+
 log = logging.getLogger("test")
 talker = {
     "enabled" : False,
@@ -15,10 +27,6 @@ talker = {
 vault = {}
 config = {}
 
-def set_config(con):
-    config = con.copy()
 
-def get_config():
-    return config
 
  

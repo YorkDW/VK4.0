@@ -20,10 +20,10 @@ import modules.basemaster as base
 from modules.basemaster import DataBox
 import modules.commands as co
 
-import inspect
-
 command_dict = {
-    'kick' : {'obj' : co.kick, 'level' : 1}
+    'kick' : {'obj' : co.kick, 'level' : 1},
+    'bro' : {'obj' : co.broadcast, 'level' : 1},
+    't' : {'obj' : co.test, 'level' : 1}
 }
 
 
@@ -39,14 +39,8 @@ async def new_user(event):
     pass
 
 async def simple(event):
-    time.sleep(0.5)
-    print('here')
-    t = time.perf_counter()
     box = DataBox(event)
-    await co.check_all(box, box.msg.from_id)
-    print(time.perf_counter()-t)
-    return "simple"
-    pass
+    await co.test(box)
 
 async def command(event):
     box = DataBox(event)

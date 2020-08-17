@@ -8,22 +8,20 @@ from vkwave.types.responses import ExecuteResponse
 
 import modules.storage as stor
 import modules.basemaster as base
+from modules.message import split_message_dict, get_message_resend_dict, send_new
 
 class st:
     logger:None
 
 
 
-#update for attachmets later
-async def send_text(api, peer, text):
-    await api.messages.send(
-        random_id=random.randint(50000,2000000000),
-        peer_id = peer,
-        message = text
-    )
+async def send_message(api, send_args:dict):
+    send_args.update({"random_id":random.randint(50000,2000000000)})
+    await api.messages.send(**send_args)
     
 async def send_answer(box, text):
-    await send_text(box.api, box.msg.peer_id, text)
+    send_args = {"peer_id":box.msg.peer_id, "message":text}
+    await send_message(box.api, send_args)
 
 async def log_respond(box, log, answer = False,level=12):
     st.logger.log(level, f" {log}")
@@ -52,6 +50,13 @@ def check_zeros(name_and_val):
         if not value:
             res.append(f"Wrong {key}")
     return False if not res else ', '.join(res)
+
+def get_stat(ex_res:list):
+    errors = 0
+    for elem in ex_res:
+        if isinstance(elem, bool) and elem == False:
+            errors += 1
+    return f"{len(ex_res)-errors}/{len(ex_res)}"
 
 
 @execute
@@ -101,7 +106,7 @@ async def kick(box):
     if errors:
         return (False, errors, errors)
     res = await execute_kicks(box.api, box.chats, await box.targets)
-    stat = f"{res.count(True)}/{len(res)}"
+    stat = get_stat(res)
     return (True, f"kicked {await box.targets}, {stat}", f"result - {stat}")
 
 
@@ -144,6 +149,78 @@ async def check_all(box, user_id):
         return
     await undesirable(box, user_id)
 
+async def get_call_list(api, chats):  
+        call_ids = call_list = {}
+        for_execue = []
+
+        for peer in chats:
+            call_ids.update({peer:[]})
+            for_execue.append(('messages.getConversationMembers',{"peer_id":peer}))
+
+        res_execue = await stor.execue(api, for_execue)
+
+        for chat_num, members_object in enumerate(res_execue):
+            if not members_object:
+                continue
+            for member in members_object['items']:
+                if member['member_id']>0 and not base.is_chat_admin(member['member_id'], chats[chat_num]):
+                    call_ids[chats[chat_num]].append(member['member_id'])
+
+        for peer, ids in call_ids.items():
+            ids = list(map(lambda peer:f"[id{peer}|-]", ids))
+            text = ""
+            for i in range(0, len(ids), 25):
+                text += '\n' + ''.join(ids[i:i+25])
+            call_list.update({peer: text})
+
+        return call_list
+
+async def broadcast(box):
+    if box.msg.reply_message:
+        for_send = await get_message_resend_dict(box.api, box.msg.reply_message)
+    elif box.msg.fwd_messages:
+        for_send = await get_message_resend_dict(box.api, box.msg.fwd_messages)
+    elif '\n' in box.msg.text:
+        for_send = await get_message_resend_dict(box.api, box.msg)
+        for_send["message"] = for_send["message"][for_send["message"].find("\n")+1:]
+    elif box.msg.attachments:
+        for_send = await get_message_resend_dict(box.api, box.msg)
+        for_send["message"] = ""
+    else:
+        return False # bad end
+    call_list = await get_call_list(box.api, box.chats) if box.param == "call" else {}
+    for_execue = []
+
+    for peer in box.chats:
+        for_send_with_calls = for_send.copy()
+        if peer in call_list.keys():
+            for_send_with_calls["message"] += call_list[peer]
+        msg_list = await split_message_dict(for_send_with_calls)
+        for msg in msg_list:
+            for_execue.append(("messages.send",msg))
+            for_execue[-1][1].update({"peer_id":peer, "random_id":random.randint(50000,2000000000)})
+    res = await stor.execue(box.api, for_execue)
+
+    print(get_stat(res))
+    
+    
+
+    
+
+
+
+
+
+async def test(box):
+    msgs = [box.msg]
+    if box.msg.fwd_messages:
+        msgs += box.msg.fwd_messages
+    elif box.msg.reply_message:
+        msgs.append(box.msg.reply_message)
+
+    for_send = await get_message_resend_dict(box.api, msgs)
+    await get_call_list(box)
+    # print(await send_new(box.api, for_send, box.msg.peer_id))
 
 async def test_all():
     chat_id = 567

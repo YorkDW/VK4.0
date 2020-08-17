@@ -558,7 +558,7 @@ def get_admin_level(user_id):
     admin = stor.vault['admins'].get(user_id, False)
     return admin['level'] if admin else 0
 
-def is_chat_admin(user_id, chat_id):
+def is_chat_admin(user_id, peer_id):
     if user_id not in stor.vault['admins'].keys():
         return False
     if 0 in  stor.vault['admins'][user_id]['chats'] or chat_id in stor.vault['admins'][user_id]['chats']:
@@ -662,7 +662,17 @@ class DataBox:
     
     @property
     def command(self):
-        return self.msg.text.split(' ')[1]
+        try:
+            return self.msg.text.split(' ')[1]
+        except:
+            return False
+
+    @property
+    def param(self):
+        try:
+            return self.msg.text.split(' ')[3]
+        except:
+            return False
 
     @property
     def admin_level(self):
