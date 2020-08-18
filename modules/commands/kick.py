@@ -50,13 +50,5 @@ async def kick(box):
     if errors:
         return (False, errors, errors)
     res = await execute_kicks(box.api, box.chats, await box.targets)
-    stat = get_stat(res)
-    return (True, f"kicked {await box.targets}, {stat}", f"result - {stat}")
 
-
-async def check_ban(box, user_id):
-    if base.is_banned(user_id, box.msg.peer_id):
-        await log_respond(box, f"Ban triggered at {box.msg.peer_id} by {user_id}")
-        await execute_kicks(box.api, box.msg.peer_id, user_id)
-        return True
-    return False
+    return (True, f"kicked {await box.targets}, {stat}", f"result {get_stat(res)}")

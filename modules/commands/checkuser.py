@@ -3,7 +3,6 @@ from modules.commands.kick import execute_kicks
 
 async def check_ban(box, user_id):
     if base.is_banned(user_id, box.msg.peer_id):
-        await log_respond(box, f"Ban triggered at {box.msg.peer_id} by {user_id}")
         await execute_kicks(box.api, box.msg.peer_id, user_id)
         return True
     return False
@@ -16,27 +15,28 @@ async def catch_runner(box, user_id):
     if count_of_enters > stor.config['MAXENTERS']:
         print(enters)
         print('KICK THEM')
-        await log_respond(box, f"Runner {user_id} was caught at {box.peer_id-2000000000}")
         # await execute_kicks(box.api, enters, user_id)
         return True
     return False
     
 async def undesirable (box, user_id):
     if user_id<0 and user_id != box.event.group_id:
-        await log_respond(box, f"Bot was caught at {box.msg.peer_id}", "I am the only bot here")
         await execute_kicks(box.api, box.msg.peer_id, user_id)
-    if base.check_gate(box.msg.peer_id):
-        await log_respond(box, f"{user_id} kicked by closed gates at {box.msg.peer_id}")
+        return (True, f"Bot was caught at {box.msg.peer_id}", "I am the only bot here")
+    if base.check_gate(box.msg.peer_id):                                    # use asyncio here
+        await send_answer(box, "Gate is closed")
         await execute_kicks(box.api, box.msg.peer_id, user_id)
+        return (True, f"User {user_id} kicked by closed gate at {box.msg.peer_id}")
+    return (True, f"User {user_id} was welcomed")
 
+@log_and_respond_decorator
 async def check_all(box, user_id):
-    if not verify_chat(chat_id):
-        return
+    if not base.verify_chat(box.msg.peer_id):
+        return (False, f"New user {user_id} in wrong chat")
     if await check_ban(box, user_id):
-        return
+        return (True, f"Ban triggered by {user_id}")
     if base.is_chat_admin(user_id, box.msg.peer_id):
-        pass
-        #return
+        return (True, "Admin entered")
     if await catch_runner(box, user_id):
-        return
-    await undesirable(box, user_id)
+        return (True, f"Runner {user_id} was caught")
+    return await undesirable(box, user_id)

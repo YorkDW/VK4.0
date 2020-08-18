@@ -27,6 +27,7 @@ async def get_call_list(api, chats):
 
         return call_list
 
+@log_and_respond_decorator
 async def broadcast(box):
     if box.msg.reply_message:
         for_send = await get_message_resend_dict(box.api, box.msg.reply_message)
@@ -39,10 +40,15 @@ async def broadcast(box):
         for_send = await get_message_resend_dict(box.api, box.msg)
         for_send["message"] = ""
     else:
-        return False # bad end
-    call_list = await get_call_list(box.api, box.chats) if box.param == "call" else {}
-    for_execue = []
+        return (False, "Nothing to broadcast", "Nothing to broadcast") 
+    
+    errors = check_zeros({"chat":box.chats})
+    if errors:
+        return (False, errors, errors)
 
+    call_list = await get_call_list(box.api, box.chats) if box.param == "call" else {}
+
+    for_execue = []
     for peer in box.chats:
         for_send_with_calls = for_send.copy()
         if peer in call_list.keys():
@@ -51,6 +57,8 @@ async def broadcast(box):
         for msg in msg_list:
             for_execue.append(("messages.send",msg))
             for_execue[-1][1].update({"peer_id":peer, "random_id":random.randint(50000,2000000000)})
-    res = await stor.execue(box.api, for_execue)
-
-    print(get_stat(res))
+    
+    result = await stor.execue(box.api, for_execue)
+    
+    stat =  get_stat(result)
+    return (True, f"Res {stat}", f"Broadcasted {stat}")

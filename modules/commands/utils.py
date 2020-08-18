@@ -22,17 +22,25 @@ async def log_respond(box, log, answer = False,level=12):
 
 def log_and_respond_decorator(func):
     async def body(*args, **kwargs):
-        status, log, answer = await func(*args, **kwargs)
+        status_log_answer = await func(*args, **kwargs)
+        if any([
+            len(args)>0 and not isinstance(args[0], DataBox),
+            not isinstance(status_log_answer, tuple),
+            len(status_log_answer) not in (2,3)
+        ]):
+            await log_respond(args, "BOX ERROR", False, 20)
+            raise SystemExit
+
+        status, log = status_log_answer[0], status_log_answer[1]
+        answer = status_log_answer[2] if len(status_log_answer) == 3 else False
+        
 
         intro = 'Done:' if status else 'FAIL:'
         level = 12 if status else 14
-        log_for_send = f"{intro} {func.__name__}{args}{kwargs} - {log}"
+        peer = args[0].msg.peer_id-2000000000 if args[0].msg.peer_id > 2000000000 else args[0].msg.peer_id
+        for_log = f"{intro} {func.__name__}{args[1:]}{kwargs} from {peer} by {args[0].msg.from_id}:\n{log}"
 
-        if len(args)>0 and isinstance(args[0], DataBox):
-            await log_respond(args[0], log_for_send, answer, level)
-        else:
-            print('ERROR')
-            raise SystemExit
+        await log_respond(args[0], for_log, answer, level)
         return (status, log, answer)
     return body
 
