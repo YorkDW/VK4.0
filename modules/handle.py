@@ -15,15 +15,19 @@ from vkwave.types.bot_events import BotEventType
 from vkwave.bots.core.dispatching.filters.base import BaseFilter, BaseEvent, FilterResult
 import modules.storage as stor
 import modules.basemaster as base
-
-
-from modules.basemaster import DataBox
-import modules.commands as co
+from modules.databox import DataBox
+from modules.commands import (
+    kick,
+    broadcast,
+    utils,
+    checkuser,
+    test,
+)
 
 command_dict = {
-    'kick' : {'obj' : co.kick, 'level' : 1},
-    'bro' : {'obj' : co.broadcast, 'level' : 1},
-    't' : {'obj' : co.test, 'level' : 1}
+    'kick' : {'obj' : kick.kick, 'level' : 1},
+    'bro' : {'obj' : broadcast.broadcast, 'level' : 1},
+    't' : {'obj' : test.test, 'level' : 1}
 }
 
 
@@ -34,13 +38,13 @@ async def new_user(event):
         user_id = box.msg.action.member_id
     elif box.msg.action.type is MessagesMessageActionStatus.CHAT_INVITE_USER_BY_LINK:
         user_id = box.msg.from_id
-    await co.check_all(box, user_id)
+    await checkuser.check_all(box, user_id)
     return str(user_id)
     pass
 
 async def simple(event):
     box = DataBox(event)
-    await co.test(box)
+    await test.test(box)
 
 async def command(event):
     box = DataBox(event)

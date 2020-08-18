@@ -13,9 +13,11 @@ from vkwave.bots import (
 )
 from vkwave.types.bot_events import BotEventType
 from vkwave.longpoll import BotLongpollData, BotLongpoll
-from modules.storage import dump
-from modules import basemaster as base, handle as hand, storage as stor, commands as co
-
+from modules import basemaster as base, handle as hand, storage as stor
+from modules.commands import (
+    utils,
+    test,
+)
 
 async def main():
     path = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +33,7 @@ async def main():
     base_logger.setLevel(10)
     command_logger = logging.getLogger('co')
     command_logger.setLevel(10)
-    co.st.logger = command_logger
+    utils.st.logger = command_logger
 
     client = AIOHTTPClient()
     token = BotSyncSingleToken(bot_token)
@@ -46,7 +48,7 @@ async def main():
     dp.add_router(await hand.initiate_router(DefaultRouter()))
     await base.initiate(dump_conf['BASEFILE'], base_logger)
     await dp.cache_potential_tokens()
-    # await co.test_all()
+    # await test.test_all()
     await lp_extension.start()
 
 
