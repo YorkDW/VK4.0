@@ -22,12 +22,17 @@ from modules.commands import (
     utils,
     checkuser,
     test,
+    chatcontrol,
 )
 
 command_dict = {
     'kick' : {'obj' : kick.kick, 'level' : 1},
-    'bro' : {'obj' : broadcast.broadcast, 'level' : 1},
-    't' : {'obj' : test.test, 'level' : 1}
+    'broadcast' : {'obj' : broadcast.broadcast, 'level' : 1},
+    't' : {'obj' : test.test, 'level' : 1},
+    'op' : {'obj' : chatcontrol.add_admin, 'level' : 1},
+    'deop' : {'obj' : chatcontrol.del_admin, 'level' : 1},
+    'addchat' : {'obj' : chatcontrol.add_chat, 'level' : 1},
+    'delchat' : {'obj' : chatcontrol.del_chat, 'level' : 1}
 }
 
 

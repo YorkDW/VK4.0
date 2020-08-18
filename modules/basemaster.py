@@ -44,7 +44,7 @@ async def initiate(basefile, base_logger):
     await update_vault_all()
 
 @conn_and_wand_decorator
-async def add_or_update_object(Zconnection, wand, name, sql, params:list, add_or_update):
+async def add_or_update_object(Zconnection, wand, name, sql, params:list, add_or_updat):
     try:
         await wand.execute(sql, params)
     except Exception as error:
@@ -54,13 +54,13 @@ async def add_or_update_object(Zconnection, wand, name, sql, params:list, add_or
         return (False, f"{unique_field_fail} already added")
     else:
         await Zconnection.commit()
-    return (True, f"{name} {add_or_update}ed")
+    return (True, f"{name} {add_or_updat}ed")
 
 @logging_decorator
 async def add_chat(chat_id, name):
     kwargs = {
         "name":'Chat',
-        "add_or_update":"add",
+        "add_or_updat":"add",
         "sql":"INSERT INTO Chats ('VK_ID', 'Name') VALUES(?, ?)",
         "params":[chat_id, name]
     }
@@ -70,7 +70,7 @@ async def add_chat(chat_id, name):
 async def add_group(group_name):
     kwargs = {
         "name":'Group',
-        "add_or_update":"add",
+        "add_or_updat":"add",
         "sql":"INSERT INTO Groups ('Name') VALUES(?)",
         "params":[group_name]
     }
@@ -80,7 +80,7 @@ async def add_group(group_name):
 async def add_admin(admin_id, level, name):
     kwargs = {
         "name":'Admin',
-        "add_or_update":"add",
+        "add_or_updat":"add",
         "sql":"INSERT INTO Admins ('VK_ID', 'Level', 'Name') VALUES(?, ?, ?)",
         "params":[admin_id, level, name]
     }
@@ -90,7 +90,7 @@ async def add_admin(admin_id, level, name):
 async def update_chat(chat_id, name):
     kwargs = {
         "name":'Chat',
-        "add_or_update":"update",
+        "add_or_updat":"updat",
         "sql":"UPDATE Chats SET Name=? WHERE VK_ID=?",
         "params":[name, chat_id]
     }
@@ -100,7 +100,7 @@ async def update_chat(chat_id, name):
 async def update_group(old_group_name, new_group_name):
     kwargs = {
         "name":'Group',
-        "add_or_update":"update",
+        "add_or_updat":"updat",
         "sql":"UPDATE Groups SET Name=? WHERE Name=?",
         "params":[new_group_name, old_group_name]
     }
@@ -110,7 +110,7 @@ async def update_group(old_group_name, new_group_name):
 async def update_admin(admin_id, level, name):
     kwargs = {
         "name":'Admin',
-        "add_or_update":"update",
+        "add_or_updat":"updat",
         "sql":"UPDATE Admins SET Level=?, Name=? WHERE VK_ID=?",
         "params":[level, name, admin_id]
     }
