@@ -32,7 +32,14 @@ command_dict = {
     'op' : {'obj' : chatcontrol.add_admin, 'level' : 1},
     'deop' : {'obj' : chatcontrol.del_admin, 'level' : 1},
     'addchat' : {'obj' : chatcontrol.add_chat, 'level' : 1},
-    'delchat' : {'obj' : chatcontrol.del_chat, 'level' : 1}
+    'delchat' : {'obj' : chatcontrol.del_chat, 'level' : 1},
+    'addgroup' : {'obj' : chatcontrol.add_group, 'level' : 1},
+    'delgroup' : {'obj' : chatcontrol.del_group, 'level' : 1},
+    'addchattogroup' : {'obj' : chatcontrol.add_chat_to_group, 'level' : 1},
+    'delchatfromgroup' : {'obj' : chatcontrol.del_chat_from_group, 'level' : 1},
+    'addadmintochat' : {'obj' : chatcontrol.add_admin_to_chat, 'level' : 1},
+    'deladminfromchat' : {'obj' : chatcontrol.del_admin_from_chat, 'level' : 1}
+
 }
 
 
