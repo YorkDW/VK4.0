@@ -23,10 +23,11 @@ from modules.commands import (
     checkuser,
     test,
     chatcontrol,
+    ban,
 )
 
 command_dict = {
-    'kick' : {'obj' : kick.kick, 'level' : 1},
+    'kick' : {'obj' : kick.kick_for_handle, 'level' : 1},
     'broadcast' : {'obj' : broadcast.broadcast, 'level' : 1},
     't' : {'obj' : test.test, 'level' : 1},
     'op' : {'obj' : chatcontrol.add_admin, 'level' : 1},
@@ -38,7 +39,11 @@ command_dict = {
     'addchattogroup' : {'obj' : chatcontrol.add_chat_to_group, 'level' : 1},
     'delchatfromgroup' : {'obj' : chatcontrol.del_chat_from_group, 'level' : 1},
     'addadmintochat' : {'obj' : chatcontrol.add_admin_to_chat, 'level' : 1},
-    'deladminfromchat' : {'obj' : chatcontrol.del_admin_from_chat, 'level' : 1}
+    'deladminfromchat' : {'obj' : chatcontrol.del_admin_from_chat, 'level' : 1},
+    'ban' : {'obj' : ban.add_ban, 'level' : 1},
+    'forgive' : {'obj' : ban.del_ban, 'level' : 1},
+    'permban' : {'obj' : ban.add_perm_ban, 'level' : 1},
+    'delpermban' : {'obj' : ban.del_perm_ban, 'level' : 1}
 
 }
 
@@ -63,6 +68,8 @@ async def command(event):
     if box.command in command_dict.keys():
         if box.admin_level >= command_dict[box.command]['level']:
             try:
+                if box.admin_level <= 2:
+                    box.targets = await base.handle_targets(box.targets) # create this handle func!
                 await command_dict[box.command]['obj'](box)
             except Exception as e:
                 raise SystemExit(e)

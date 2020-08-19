@@ -34,21 +34,27 @@ async def execute_kicks(api, peers, users):
         res += (await kick_them(api=api, chats=kick_chats, users=kick_users)).response
     return res
 
-@log_and_respond_decorator
-async def kick(box):
+def remove_protected_targets(box):
     admin = box.msg.from_id
-    for target in await box.targets:
+    for target in box.targets:
         target_level = base.get_admin_level(target)
         protected = any([
             target_level >= 2, 
-            target_level >= base.get_admin_level(admin) if admin != 'auto' else False,
+            target_level >= base.get_admin_level(admin),
             target == admin
-        ])
+            ])
         if protected:
             box.remove_target(target)
-    errors = check_zeros({"target":await box.targets, "chat":box.chats})
+
+async def kick(box):
+    remove_protected_targets(box)
+    errors = check_zeros({"target":box.targets, "chat":box.chats})
     if errors:
         return (False, errors, errors)
-    res = await execute_kicks(box.api, box.chats, await box.targets)
+    res = await execute_kicks(box.api, box.chats, box.targets)
 
-    return (True, f"kicked {await box.targets}, {stat}", f"result {get_stat(res)}")
+    return (True, f"kicked {box.targets}, {get_stat(res)}", f"result {get_stat(res)}")
+
+@log_and_respond_decorator
+async def kick_for_handle(box):
+    return await kick(box)

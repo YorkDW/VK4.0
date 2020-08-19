@@ -344,13 +344,13 @@ async def del_target(admin_id, user_id):
 async def add_ban(Zconnection, wand, user_id, chat_id):
     sql = "INSERT INTO 'Bans' ('VK_ID', 'Everywhere') VALUES(?, ?)"
     try:
-        await wand.exrcute(sql, [user_id, 0])
+        await wand.execute(sql, [user_id, 0])
     except:
         pass
 
     sql = "INSERT INTO 'Bans_fill' ('Chat_ID', 'Ban_ID') VALUES((SELECT Chat_ID FROM Chats WHERE VK_ID=?), (SELECT Ban_ID FROM Bans WHERE VK_ID=?))"
     try:
-        await wand.exrcute(sql, [chat_id, user_id])
+        await wand.execute(sql, [chat_id, user_id])
     except:
         return (False, f"User {user_id} already banned in {chat_id}")
     await Zconnection.commit()
@@ -358,32 +358,27 @@ async def add_ban(Zconnection, wand, user_id, chat_id):
 
 @conn_and_wand_decorator
 async def del_ban(Zconnection, wand, user_id, chat_id):
-    await wand.execute('''SELECT c.VK_ID, b.VK_ID, b.Everywhere
-    FROM Chats c, Bans b, Bans_fill bf
-    WHERE b.Ban_ID=bf.Ban_ID AND bf.Chat_ID=c.Chat_ID AND b.VK_ID=?''',[user_id])
-    chats_under_ban = await wand.fetchall()
-    for chat, user, every in chats_under_ban:
-        if chat==chat_id:
-            every_flag = every
-            break
-    else:
+    if user_id not in stor.vault['banlist'].keys() or chat_id not in stor.vault['banlist'][user_id]:
         return (False, f"User {user_id} is not banned in {chat_id}")
+    
     sql = '''DELETE FROM Bans_fill WHERE 
     Chat_ID=(SELECT Chat_ID FROM Chats WHERE VK_ID=?) AND 
     Ban_ID=(SELECT Ban_ID FROM Bans WHERE VK_ID=?)'''
     await wand.execute(sql,[chat_id, user_id])
 
-    if not every_flag and len(chats_under_ban)==1:
+    if 0 not in stor.vault['banlist'][user_id] and len(stor.vault['banlist'][user_id])==1:
         await wand.execute('''DELETE FROM Bans WHERE VK_ID=?''',[user_id])
     await Zconnection.commit()
     return (True, f"User {user_id} is forgiven in {chat_id}")
 
 @conn_and_wand_decorator
 async def add_perm_ban(Zconnection, wand, user_id):
-    sql = '''INSERT INTO Bans(VK_ID, Everywhere)
-    VALUES (?,1)
-    ON CONFLICT(VK_ID) DO UPDATE SET Everywhere=excluded.Everywhere'''
-    await wand.execute(sql,[user_id])
+    sql = '''INSERT INTO Bans(VK_ID, Everywhere) VALUES (?,1)'''
+    sql_update = '''UPDATE Bans SET Everywhere=1 WHERE VK_ID=?'''''
+    try:
+        await wand.execute(sql,[user_id])
+    except:
+        await wand.execute(sql_update,[user_id])
     await Zconnection.commit()
     return (True, f"User {user_id} is banned everywhere")
 
@@ -391,13 +386,13 @@ async def add_perm_ban(Zconnection, wand, user_id):
 async def del_perm_ban(Zconnection, wand, user_id):
     user_s_banlist = stor.vault['banlist'].get(user_id, [])
     if 0 not in user_s_banlist:
-        return (False, f"User {user_id} is not fully banned")
+        return (False, f"User {user_id} was not fully banned")
     if len(user_s_banlist)>1:
         await wand.execute("UPDATE Bans SET Everywhere=0 WHERE VK_ID=?",[user_id])
     else:
         await wand.execute("DELETE FROM Bans WHERE VK_ID=?",[user_id])
     await Zconnection.commit()
-    return (False, f"User {user_id} is not fully banned now")
+    return (True, f"User {user_id} is not fully banned now")
 
 # переделать это всё, вообще всё, под нормальные методы работы с базой, а не этот колхоз
 

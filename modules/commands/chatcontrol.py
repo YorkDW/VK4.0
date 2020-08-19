@@ -15,14 +15,12 @@ async def add_chat(box):  # add a selection option for chat
             g_status, g_message = await base.add_chat_to_group(box.msg.peer_id, text_list[2])
             if not g_status:
                 c_message += f" {g_message}"
-    for user in await box.targets:
+    for user in box.targets:
         if user in stor.vault['admins'].keys():
             a_status, a_message = await base.add_admin_to_chat(box.msg.peer_id, user)
             if not a_status:
                 c_message += f" {user} {a_message}"
-    await base.update_vault_chats()
-    await base.update_vault_groups()
-    await base.update_vault_admins()
+    await base.update_vault_all()
     return (True, c_message, c_message)
 
 @log_and_respond_decorator
@@ -33,28 +31,27 @@ async def del_chat(box): # add a selection option for chat
 
 @log_and_respond_decorator
 async def add_admin(box):
-    targets = await box.targets
-    if len(targets)==0:
+    if len(box.targets)==0:
         return (False, "Wrong admin", "Choose admin")
     func = base.add_admin
-    if targets[0] in stor.vault['admins'].keys():
+    if box.targets[0] in stor.vault['admins'].keys():
         func = base.update_admin
         # return (False, "Admin already added", "Admin already added")
     if not str(box.param).isdigit():
         return (False, "Wrong level", "Choose level")
     if not int(box.param) in (1,2,3,4):
         return (False, "Wrong level", "Level must be from 1 to 4")
-    status, message = await func(targets[0], int(box.param), str(targets[0]))
+    status, message = await func(box.targets[0], int(box.param), str(box.targets[0]))
     await base.update_vault_admins()
     return (status, message, message)
 
 @log_and_respond_decorator
 async def del_admin(box):
-    if len(await box.targets) == 0:
+    if len(box.targets) == 0:
         return (False, "Wrong admin", "Choose admin")
-    if (await box.targets)[0] not in stor.vault['admins'].keys():
+    if box.targets[0] not in stor.vault['admins'].keys():
         return (False, "No such admin", "Target is not an admin")
-    status, message = await base.del_admin((await box.targets)[0])
+    status, message = await base.del_admin(box.targets[0])
     await base.update_vault_all()
     return (status, message, message)
 
@@ -82,18 +79,17 @@ async def del_group(box):
 
 async def admin_and_chat(box, add_or_delet):
     if add_or_delet not in ("add", "delet"):
-        return (False, "WRONG ADD_OR_DELET NAME", "Internal erorr")
+        return (False, "WRONG ADD_OR_DELET NAME", "Internal error")
     func = base.add_admin_to_chat if add_or_delet=="add" else base.del_admin_from_chat
     
-    targets = await box.targets
-    errors = check_zeros({"Admin":targets, "Chats":box.chats})
+    errors = check_zeros({"Admin":box.targets, "Chats":box.chats})
     if errors:
         return (False, errors, errors)
     
     completed = 0
     add_errors = []
     for chat in box.chats:
-        status, answer = await func(chat, targets[0])
+        status, answer = await func(chat, box.targets[0])
         if status:
             completed += 1
         else:

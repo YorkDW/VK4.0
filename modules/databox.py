@@ -45,8 +45,7 @@ class DataBox:
     def admin_level(self):
         return base.get_admin_level(self.msg.from_id)
 
-    @property
-    async def targets(self):
+    def _get_targets(self):
         if self.handled_targets is not None:
             return self.handled_targets
         targets = []
@@ -56,12 +55,15 @@ class DataBox:
                 targets.append(targ)
         for fwd in self.msg.fwd_messages:
             targets.append(fwd.from_id)
-        targets = list(set(targets)-set([self.event.object.group_id*-1]))
-        self.handled_targets = await base.handle_targets(targets)
+        self.handled_targets = list(set(targets)-set([self.event.object.group_id*-1]))
         return self.handled_targets
+
+    def _set_targets(self, targets:list):
+        self.handled_targets = targets
+
+    targets = property(_get_targets, _set_targets)
         
-    @property
-    def chats(self):
+    def _get_chats(self):
         if self.handled_chats is not None:
             return self.handled_chats
         try:
@@ -92,14 +94,13 @@ class DataBox:
             self.handled_chats = list(set(chatList).intersection(set(admins_chats)))
         return self.handled_chats
 
+    def _set_chats(self, chats:list):
+        self.handled_chats = chats
+
+    chats = property(_get_chats, _set_chats)
+
     def remove_target(self, target):
         if self.handled_targets is None:
             return
         if target in self.handled_targets:
             self.handled_targets.remove(target)
-
-    def remove_chat(self, chat):
-        if self.handled_chats is None:
-            return
-        if chat in self.handled_chats:
-            self.handled_chats.remove(chat)
