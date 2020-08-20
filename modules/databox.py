@@ -30,9 +30,9 @@ class DataBox:
     @property
     def command(self):
         try:
-            return self.msg.text.split(' ')[1]
+            return self.msg.text.split(' ')[1].lower()
         except:
-            return False
+            return None
 
     @property
     def param(self):

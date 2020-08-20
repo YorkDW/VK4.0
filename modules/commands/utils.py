@@ -54,3 +54,19 @@ def get_stat(ex_res:list):
         if isinstance(elem, bool) and elem == False:
             errors += 1
     return f"{len(ex_res)-errors}/{len(ex_res)}"
+
+def str_to_sec(in_str:str): # 1d:24h:33m:44s
+    if in_str.isdigit():
+        return int(in_str)*60
+    time_dict = {'s':1, 'm':60, 'h':60*60, 'd':60*60*24}
+    parts = in_str.lower().split(':')
+    res = 0
+    for part in parts:
+        if not part:
+            continue
+        key = part[-1]
+        try:
+            res += int(part[:-1])*time_dict[key]
+        except:
+            return False
+    return res

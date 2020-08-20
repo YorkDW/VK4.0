@@ -238,7 +238,7 @@ async def add_or_del_status(Zconnection, wand, name,
         if not isinstance(error, aiosqlite.IntegrityError):
             return (False, str(error))
         params.pop(0)
-        params.append(base_chat_or_admin_id)
+        params.append(base_chat_or_admin_id) # просто гениально
         await wand.execute(sql_update, params)
     await Zconnection.commit()
     negative = '' if add_or_delet=='add' else 'un'
@@ -420,13 +420,13 @@ async def update_vault_chats(Zconnection, wand):
     await wand.execute('''SELECT VK_ID, name FROM Chats''')
     chats = await wand.fetchall()
 
-    await wand.execute('''DELETE FROM Chat_mutes WHERE time<?''',[int(time.time()+100)])
+    await wand.execute('''DELETE FROM Chat_mutes WHERE time<?''',[int(time.time())])
     await wand.execute('''SELECT c.VK_ID, m.User_ID, m.time
     FROM Chats c, Chat_mutes m
     WHERE m.Chat_ID=c.Chat_ID''')
     mutes = await wand.fetchall()
 
-    await wand.execute('''DELETE FROM Chat_gates WHERE time<?''',[int(time.time()+100)])
+    await wand.execute('''DELETE FROM Chat_gates WHERE time<?''',[int(time.time())])
     await wand.execute('''SELECT c.VK_ID, g.time
     FROM Chats c, Chat_gates g
     WHERE g.Chat_ID=c.Chat_ID''')
@@ -451,7 +451,7 @@ async def update_vault_chats(Zconnection, wand):
     
 @conn_and_wand_decorator
 async def update_vault_enters(Zconnection, wand):
-    await wand.execute('''DELETE FROM Last_enters WHERE time<?''',[int(time.time())-300])
+    await wand.execute('''DELETE FROM Last_enters WHERE time<?''',[int(time.time())])
     await wand.execute('''SELECT c.VK_ID, l.User_ID, l.time
     FROM Chats c, Last_enters l
     WHERE l.Chat_ID=c.Chat_ID''')

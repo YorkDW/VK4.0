@@ -26,6 +26,7 @@ from modules.commands import (
     chatcontrol,
     ban,
     system,
+    chatstatuses,
 )
 
 command_dict = {
@@ -50,7 +51,12 @@ command_dict = {
     'stop' : {'obj' : system.stop, 'level' : 1},
     'log' : {'obj' : system.log, 'level' : 1},
     'clearlog' : {'obj' : system.clear_log, 'level' : 1},
-    'basedump' : {'obj' : system.base_dump, 'level' : 1}
+    'basedump' : {'obj' : system.base_dump, 'level' : 1},
+    'mute' : {'obj' : chatstatuses.add_mute, 'level' : 1},
+    'unmute' : {'obj' : chatstatuses.del_mute, 'level' : 1},
+    'closegate' : {'obj' : chatstatuses.add_gate, 'level' : 1},
+    'opengate' : {'obj' : chatstatuses.del_gate, 'level' : 1},
+    'chatstatus' : {'obj' : chatstatuses.get_chat_statuses, 'level' : 1}
 
 }
 
@@ -118,7 +124,7 @@ async def initiate_router(router):
         router.registrar.new()
         .with_filters(
             EventTypeFilter('message_new') & # without callback button support!
-            PayloadFilter()
+            PayloadFilter(None)
         )
         .handle(command)
         .ready()
