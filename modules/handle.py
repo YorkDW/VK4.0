@@ -28,6 +28,7 @@ from modules.commands import (
     system,
     chatstatuses,
     simple_msg,
+    talker,
 )
 
 command_dict = {
@@ -57,8 +58,9 @@ command_dict = {
     'unmute' : {'obj' : chatstatuses.del_mute, 'level' : 1},
     'closegate' : {'obj' : chatstatuses.add_gate, 'level' : 1},
     'opengate' : {'obj' : chatstatuses.del_gate, 'level' : 1},
-    'chatstatus' : {'obj' : chatstatuses.get_chat_statuses, 'level' : 1}
-
+    'chatstatus' : {'obj' : chatstatuses.get_chat_statuses, 'level' : 1},
+    'actt' : {'obj' : talker.activate_talker, 'level' : 1},
+    'deactt' : {'obj' : talker.deactivate_talker, 'level' : 1}
 }
 
 

@@ -42,6 +42,8 @@ async def get_message_resend_dict(api, msgs):
         msgs = [msgs]
     resend_dict = {"message":"", 'attachment':[]}
     for msg in msgs:
+        if not msg:
+            continue
         if msg.text:
             resend_dict['message'] += "\n" + msg.text if len(resend_dict['message']) > 0 else msg.text
         if msg.attachments:
@@ -92,6 +94,15 @@ async def send_new(api, msg_dict, peer_ids):
             for_execue[-1][1].update({"peer_id":peer, "random_id":random.randint(50000,2000000000)})
 
     return await stor.execue(api, for_execue)
+
+async def resend_message(box, peer_ids):
+    msgs = [box.msg]
+    if box.msg.reply_message:
+        msgs.append(box.msg.reply_message)
+    if box.msg.fwd_messages:
+        msgs.append(box.msg.fwd_messages)
+    msg_dict = await get_message_resend_dict(box.api, msgs)
+    await send_new(box.api, msg_dict, peer_ids)
 
 
 

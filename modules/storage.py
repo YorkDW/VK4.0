@@ -18,7 +18,6 @@ async def execue(api, data_list):
     return result
 
 talker = {
-    "enabled" : False,
     "console" : 0,
     "user" : 0,
     "target" : 0

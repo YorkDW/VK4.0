@@ -22,8 +22,12 @@ async def mute(box, add_or_del, time_ = None):
                 fail += 1
 
     await base.update_vault_chats()
-    log = "Done with errors" if fail else "Done"
-    return (True, log, log)
+    if fail:
+        return (True, "Done with errors", "Done with errors") # сделать комментарии бота понятнее
+    if add_or_del == "add":
+        return (True, "Done", "You will be kicked for any message")
+    else:
+        return (True, "Done", "Mute disabled")
 
 
     
@@ -59,8 +63,12 @@ async def gate(box, add_or_del, time_ = None):
             fail += 1
 
     await base.update_vault_chats()
-    log = "Done with errors" if fail else "Done"
-    return (True, log, log)
+    if fail:
+        return (True, "Done with errors", "Done with errors")
+    if add_or_del == "add":
+        return (True, "Done", "Chat gate is closed")
+    else:
+        return (True, "Done", "Chat gate is open")
 
 
 @log_and_respond_decorator
