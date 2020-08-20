@@ -27,8 +27,9 @@ from modules.commands import (
     ban,
     system,
     chatstatuses,
-    simple_msg,
+    simple,
     talker,
+    keyboard,
 )
 
 command_dict = {
@@ -73,13 +74,13 @@ async def new_user(event):
         user_id = box.msg.from_id
     await checkuser.check_all(box, user_id)
 
-async def simple(event):
+async def simple_msg(event):
     box = DataBox(event)
     if base.get_admin_level(box.msg.peer_id):
         if box.text_list(0).lower() == 'do':
             await command(event)
             return
-    await simple_msg.handle_simple_message(box)
+    await simple.handle_simple_message(box)
 
 async def command(event):
     box = DataBox(event)
@@ -92,10 +93,12 @@ async def command(event):
             except Exception as e:
                 raise SystemExit(e)
     if box.admin_level == 0:
-        await simple(event)
+        await simple_msg(event)
 
-async def keyboard(event):
-    await simple(event)
+async def keyboard_msg(event):
+    box = DataBox(event)
+    if not await keyboard.handle_keyboard(box):
+        await simple_msg(event)
 
 
 
@@ -131,7 +134,7 @@ async def initiate_router(router):
             EventTypeFilter('message_new') & # without callback button support!
             PayloadFilter(None)
         )
-        .handle(command)
+        .handle(keyboard_msg)
         .ready()
     )
 
@@ -150,7 +153,7 @@ async def initiate_router(router):
         .with_filters(
             EventTypeFilter('message_new')
         )
-        .handle(simple)
+        .handle(simple_msg)
         .ready()
     )
     return router
