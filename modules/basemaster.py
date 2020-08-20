@@ -438,11 +438,15 @@ async def update_vault_chats(Zconnection, wand):
          stor.vault['chats'][chat_id] = {
              'name':name,
              'gate':0,
-             'mute':[]
+             'mute':[],
+             'mute_time':[]
          }
 
     for chat_id, user_id, time_ in mutes:
-        stor.vault['chats'][chat_id]['mute'].append((user_id, time_))
+        stor.vault['chats'][chat_id]['mute'].append(user_id)
+        stor.vault['chats'][chat_id]['mute_time'].append(time_)
+    stor.vault['chats'][chat_id]['mute'] = tuple(stor.vault['chats'][chat_id]['mute'])
+    stor.vault['chats'][chat_id]['mute_time'] = tuple(stor.vault['chats'][chat_id]['mute_time'])
 
     for chat_id, time_ in gates:
         stor.vault['chats'][chat_id]['gate'] = time_
@@ -558,6 +562,21 @@ def is_chat_admin(user_id, peer_id):
         return False
     if 0 in  stor.vault['admins'][user_id]['chats'] or chat_id in stor.vault['admins'][user_id]['chats']:
         return True
+    return False
+
+def is_muted(user_id, peer_id):
+    chat = stor.vault['chats'].get(peer_id, False)
+    if not chat:
+        return False
+
+    if user_id in chat['mute']:
+        if chat['mute_time'][chat['mute'].index(user_id)] > time.time():
+            return True
+
+    if 0 in chat['mute']:
+        if chat['mute_time'][chat['mute'].index(0)] > time.time():
+            return True
+
     return False
 
 def get_chats_by_admin(user_id):

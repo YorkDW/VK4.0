@@ -1,4 +1,4 @@
-import random
+import random, time
 
 import modules.storage as stor
 import modules.basemaster as base

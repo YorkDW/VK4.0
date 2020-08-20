@@ -1,4 +1,3 @@
-import time
 from modules.commands.utils import *
 
 
@@ -89,7 +88,7 @@ async def get_chat_statuses(box):
         answer.append(f"{stor.vault['chats'][chat]['name']} - gate is {gate_status}")
 
         mutes = []
-        for user, time_ in stor.vault['chats'][chat]['mute']:
+        for user in stor.vault['chats'][chat]['mute']:
             mutes.append('all') if user == 0 else mutes.append(f"[id{user}|*id{user}]") 
         
         if mutes:

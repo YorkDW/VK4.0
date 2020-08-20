@@ -34,6 +34,15 @@ class DataBox:
         except:
             return None
 
+    def text_list(self, pos = 'all'):                # get list of words
+        text_list = self.event.object.object.message.text.split(' ')      
+        if pos == 'all':
+            return text_list
+        elif len(text_list)<=abs(pos):
+            return ""
+        else:
+            return text_list[pos]
+
     @property
     def param(self):
         text_list = self.msg.text.split(' ')

@@ -27,6 +27,7 @@ from modules.commands import (
     ban,
     system,
     chatstatuses,
+    simple_msg,
 )
 
 command_dict = {
@@ -69,12 +70,14 @@ async def new_user(event):
     elif box.msg.action.type is MessagesMessageActionStatus.CHAT_INVITE_USER_BY_LINK:
         user_id = box.msg.from_id
     await checkuser.check_all(box, user_id)
-    return str(user_id)
-    pass
 
 async def simple(event):
     box = DataBox(event)
-    await test.test(box)
+    if base.get_admin_level(box.msg.peer_id):
+        if box.text_list(0).lower() == 'do':
+            await command(event)
+            return
+    await simple_msg.handle_simple_message(box)
 
 async def command(event):
     box = DataBox(event)
