@@ -22,31 +22,31 @@ from modules.commands import (
 async def main():
     path = os.path.dirname(os.path.abspath(__file__))
     with open(f"{path}/base/config{mode}.json", 'r') as file:
-        dump_conf = json.load(file)
-    stor.config = dump_conf.copy()
-    bot_token = Token(dump_conf['TOKEN'])
-    dump_conf['BASEFILE'] = f"{path}/base/{dump_conf['BASEFILE']}"
-    dump_conf['LOGFILE'] = f"{path}/base/{dump_conf['LOGFILE']}"
+        stor.config = json.load(file)
+    bot_token = Token(stor.config['TOKEN'])
+    stor.config['BASEFILE'] = f"{path}/base/{stor.config['BASEFILE']}"
+    stor.config['LOGFILE'] = f"{path}/base/{stor.config['LOGFILE']}"
 
-    logging.basicConfig(level=11,filename=dump_conf['LOGFILE'])
+    logging.basicConfig(level=11,filename=stor.config['LOGFILE'])
     base_logger = logging.getLogger('base')
     base_logger.setLevel(10)
     command_logger = logging.getLogger('co')
     command_logger.setLevel(10)
     utils.st.logger = command_logger
+    stor.start_time = int(time.time())
 
     client = AIOHTTPClient()
     token = BotSyncSingleToken(bot_token)
     api_session = API(token, client)
     api = api_session.get_context()
-    lp_data = BotLongpollData(dump_conf['GROUP_ID'])
+    lp_data = BotLongpollData(stor.config['GROUP_ID'])
     longpoll = BotLongpoll(api, lp_data)
     token_storage = TokenStorage[GroupId]()
     dp = Dispatcher(api_session, token_storage)
     lp_extension = BotLongpollExtension(dp, longpoll)
 
     dp.add_router(await hand.initiate_router(DefaultRouter()))
-    await base.initiate(dump_conf['BASEFILE'], base_logger)
+    await base.initiate(stor.config['BASEFILE'], base_logger)
     await dp.cache_potential_tokens()
     # await test.test_all()
     await lp_extension.start()
@@ -58,8 +58,7 @@ mode = 1
 
 
 if __name__ == "__main__":
-
-    loop = asyncio.get_event_loop()
-    loop.create_task(main())
-    loop.run_forever()
+    stor.asyncio_loop = asyncio.get_event_loop()
+    stor.asyncio_loop.create_task(main())
+    stor.asyncio_loop.run_forever()
 

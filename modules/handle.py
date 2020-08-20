@@ -9,6 +9,7 @@ from vkwave.bots import (
     EventTypeFilter,
     ChatActionFilter,
     CommandsFilter,
+    PayloadFilter,
 )
 from vkwave.types.objects import MessagesMessageActionStatus
 from vkwave.types.bot_events import BotEventType
@@ -24,6 +25,7 @@ from modules.commands import (
     test,
     chatcontrol,
     ban,
+    system,
 )
 
 command_dict = {
@@ -43,7 +45,12 @@ command_dict = {
     'ban' : {'obj' : ban.add_ban, 'level' : 1},
     'forgive' : {'obj' : ban.del_ban, 'level' : 1},
     'permban' : {'obj' : ban.add_perm_ban, 'level' : 1},
-    'delpermban' : {'obj' : ban.del_perm_ban, 'level' : 1}
+    'delpermban' : {'obj' : ban.del_perm_ban, 'level' : 1},
+    'uptime' : {'obj' : system.uptime, 'level' : 1},
+    'stop' : {'obj' : system.stop, 'level' : 1},
+    'log' : {'obj' : system.log, 'level' : 1},
+    'clearlog' : {'obj' : system.clear_log, 'level' : 1},
+    'basedump' : {'obj' : system.base_dump, 'level' : 1}
 
 }
 
@@ -76,6 +83,11 @@ async def command(event):
     if box.admin_level == 0:
         await simple(event)
 
+async def keyboard(event):
+    await simple(event)
+
+
+
 class CommandFilter(BaseFilter):
     def __init__(self):
         pass
@@ -99,6 +111,16 @@ async def initiate_router(router):
             ChatActionFilter(MessagesMessageActionStatus.CHAT_INVITE_USER_BY_LINK)
         )
         .handle(new_user)
+        .ready()
+    )
+
+    router.registrar.register(
+        router.registrar.new()
+        .with_filters(
+            EventTypeFilter('message_new') & # without callback button support!
+            PayloadFilter()
+        )
+        .handle(command)
         .ready()
     )
 

@@ -3,17 +3,14 @@ import random
 import modules.storage as stor
 import modules.basemaster as base
 from modules.databox import DataBox
+from modules.message import send_new
 
 class st:
     logger:None
-
-async def send_message(api, send_args:dict):
-    send_args.update({"random_id":random.randint(50000,2000000000)})
-    await api.messages.send(**send_args)
     
 async def send_answer(box, text):
-    send_args = {"peer_id":box.msg.peer_id, "message":text}
-    await send_message(box.api, send_args)
+    send_args = {"message":text}
+    await send_new(box.api, send_args, [box.msg.peer_id])
 
 async def log_respond(box, log, answer = False,level=12):
     st.logger.log(level, f" {log}")

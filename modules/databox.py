@@ -36,10 +36,13 @@ class DataBox:
 
     @property
     def param(self):
-        try:
-            return self.msg.text.split(' ')[3]
-        except:
-            return False
+        text_list = self.msg.text.split(' ')
+        if len(text_list)>=4:
+            return text_list[3]
+        if len(text_list)==3:
+            return text_list[2]
+        
+        return ""
 
     @property
     def admin_level(self):

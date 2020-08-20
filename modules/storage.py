@@ -17,7 +17,6 @@ async def execue(api, data_list):
 
     return result
 
-log = logging.getLogger("test")
 talker = {
     "enabled" : False,
     "console" : 0,
@@ -26,6 +25,8 @@ talker = {
 }
 vault = {}
 config = {}
+start_time = 0
+asyncio_loop = None
 
 
 

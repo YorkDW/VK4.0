@@ -68,9 +68,9 @@ def split_text(text:str):  #split by parts <=4096 sybols
     result.append(text)
     return result
 
-async def split_message_dict(message_dict):
-    text_list = split_text(message_dict['message'])
-    attach_list = message_dict['attachment']
+async def split_message_dict(message_dict:dict):
+    text_list = split_text(message_dict.get('message',""))
+    attach_list = message_dict.get('attachment', [])
     message_dict['attachment'] = attach_list[:10]
     message_dict['message'] = text_list[-1]
     result = []
