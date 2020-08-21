@@ -1,3 +1,4 @@
+import time
 import modules.basemaster as base
 import modules.storage as stor
 
@@ -16,10 +17,12 @@ class DataBox:
 
     handled_targets = None
     handled_chats = None
+    start_time = 0
 
 
     def __init__(self,event):
         self.event = event
+        self.start_time = time.perf_counter()
 
     @property
     def msg(self):

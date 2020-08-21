@@ -25,9 +25,10 @@ async def handle_photo(photo:PhotosPhoto, api):
     uploader = PhotoUploader(api)
     return await uploader.get_attachment_from_link(peer_id=2000000001, link = better_size.url)
 
-async def handle_doc(doc:DocsDoc, api):
+async def handle_doc(doc:DocsDoc, api): #do not work
+    return False
     uploader = DocUploader(api)
-    return await uploader.get_attachment_from_link(peer_id=2000000001, link = 'https://vk.com/doc145144839_554536080?hash=e21f56932d4ab52978')
+    return await uploader.get_attachment_from_link(peer_id=2000000001, link = doc.url, title='test.test')
 
 async def handle_attachmen(attach:MessagesMessageAttachment, api):
     if attach.type == MessagesMessageAttachmentType.PHOTO:
@@ -50,7 +51,7 @@ async def get_message_resend_dict(api, msgs):
             attach_list = []
             for attach in msg.attachments:
                 attach_list.append(await handle_attachmen(attach, api))
-            attach_list = list(filter(lambda att:att, attach_list))
+            attach_list = list(filter(att, attach_list))
             resend_dict['attachment'] += attach_list
     return resend_dict
 

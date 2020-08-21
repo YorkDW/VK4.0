@@ -1,5 +1,7 @@
-import datetime
+import datetime, requests
+from vkwave.bots.utils.uploaders.doc_uploader import DocUploader
 from modules.commands.utils import *
+from modules.message import send_new
 
 @log_and_respond_decorator
 async def uptime(box):
@@ -60,3 +62,24 @@ async def base_dump(box):
         return (False, "Unable to send base dump in conversation", "You can't request dump here")
     return (True, "TODO", "TODO")
     
+
+
+@log_and_respond_decorator
+async def base_save(box):
+    if box.msg.peer_id > 2000000000:
+        return (False, "Unable to send base in conversation", "You can't request base here")
+    
+    uploader = DocUploader(box.api)
+    attach = await uploader.get_attachment_from_path(box.msg.peer_id, stor.config['BASEFILE'])
+    await send_new(box.api, {"attachment":[attach]}, box.msg.peer_id)
+    return (True, "Base saved")
+
+@log_and_respond_decorator
+async def base_load(box):
+    if not box.msg.attachments or not box.msg.attachments[0].doc:
+        return(False, 'Wrong file', 'Wrong file')
+    
+    basefile = requests.get(box.msg.attachments[0].doc.url)
+    with open(stor.config['BASEFILE'], 'wb') as file:
+        file.write(basefile.content)
+    return (True, "Base loaded", "Base loaded")

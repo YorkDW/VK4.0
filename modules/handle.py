@@ -64,7 +64,9 @@ command_dict = {
     'deactt' : {'obj' : talker.deactivate_talker, 'level' : 1},
     'setcatch' : {'obj' : config.set_enter_count, 'level' : 1},
     'settarget' : {'obj' : config.set_target_count, 'level' : 1},
-    'targets' : {'obj' : config.get_target_count, 'level' : 1}
+    'targets' : {'obj' : config.get_target_count, 'level' : 1},
+    'savebase' : {'obj' : system.base_save, 'level' : 1},
+    'loadbase' : {'obj' : system.base_load, 'level' : 1}
 }
 
 
@@ -88,7 +90,7 @@ async def simple_msg(event):
         if box.msg.peer_id not in stor.vault['chats'].keys():
             await log_respond(box, f"VOID in {box.msg.peer_id-2*10**9} from {box.msg.from_id} - {box.msg.text}")
     
-    await talker_handle(box)
+    await talker.talker_handle(box)
 
 async def command(event):
     box = DataBox(event)

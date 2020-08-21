@@ -31,11 +31,13 @@ def log_and_respond_decorator(func):
         status, log = status_log_answer[0], status_log_answer[1]
         answer = status_log_answer[2] if len(status_log_answer) == 3 else False
         
-
+        time.perf_counter()
         intro = 'Done:' if status else 'FAIL:'
         level = 12 if status else 14
+        work_time = int((time.perf_counter() - args[0].start_time)*1000)
+        begin = f"{intro} ({work_time}ms) {func.__name__}{args[1:]}{kwargs if kwargs else ''}"
         peer = args[0].msg.peer_id-2000000000 if args[0].msg.peer_id > 2000000000 else args[0].msg.peer_id
-        for_log = f"{intro} {func.__name__}{args[1:]}{kwargs} from {peer} by {args[0].msg.from_id}:\n{log}"
+        for_log = f"{begin} from {peer} by {args[0].msg.from_id} - {log}"
 
         await log_respond(args[0], for_log, answer, level)
         return (status, log, answer)
