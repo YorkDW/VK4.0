@@ -3,6 +3,8 @@ import modules.storage as stor
 
 
 def get_id_from_word(word:str):
+    if not (word.startswith('[id') or word.startswith('[club')):
+        return False
     partWithId = word.split('|')[0]
     supposedId = partWithId.replace('[id','').replace('[club','-')
     try:

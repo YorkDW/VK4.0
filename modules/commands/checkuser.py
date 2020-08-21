@@ -8,7 +8,7 @@ async def check_ban(box, user_id):
     return False
 
 async def catch_runner(box, user_id):
-    enters = await base.handle_enter(user_id, box.msg.peer_id, int(time.time()))
+    enters = await base.handle_enter(user_id, box.msg.peer_id, int(time.time())+60*60*24)
     count_of_enters = len(enters)
     if count_of_enters == stor.config['MAXENTERS']:
         await send_answer(box, "You will be kicked for any enterance in 24 hours")

@@ -21,11 +21,13 @@ from modules.commands import (
 
 async def main():
     path = os.path.dirname(os.path.abspath(__file__))
-    with open(f"{path}/base/config{mode}.json", 'r') as file:
+    full_path = f"{path}/base/config{mode}.json"
+    with open(full_path, 'r') as file:
         stor.config = json.load(file)
     bot_token = Token(stor.config['TOKEN'])
     stor.config['BASEFILE'] = f"{path}/base/{stor.config['BASEFILE']}"
     stor.config['LOGFILE'] = f"{path}/base/{stor.config['LOGFILE']}"
+    stor.config['CONFIG'] = full_path
 
     logging.basicConfig(level=11,filename=stor.config['LOGFILE'])
     base_logger = logging.getLogger('base')

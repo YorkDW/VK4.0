@@ -37,7 +37,7 @@ async def add_admin(box):
     if box.targets[0] in stor.vault['admins'].keys():
         func = base.update_admin
         # return (False, "Admin already added", "Admin already added")
-    if not str(box.param).isdigit():
+    if not box.param.isdigit():
         return (False, "Wrong level", "Choose level")
     if not int(box.param) in (1,2,3,4):
         return (False, "Wrong level", "Level must be from 1 to 4")

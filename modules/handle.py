@@ -27,9 +27,9 @@ from modules.commands import (
     ban,
     system,
     chatstatuses,
-    simple,
     talker,
     keyboard,
+    config,
 )
 
 command_dict = {
@@ -61,7 +61,10 @@ command_dict = {
     'opengate' : {'obj' : chatstatuses.del_gate, 'level' : 1},
     'chatstatus' : {'obj' : chatstatuses.get_chat_statuses, 'level' : 1},
     'actt' : {'obj' : talker.activate_talker, 'level' : 1},
-    'deactt' : {'obj' : talker.deactivate_talker, 'level' : 1}
+    'deactt' : {'obj' : talker.deactivate_talker, 'level' : 1},
+    'setcatch' : {'obj' : config.set_enter_count, 'level' : 1},
+    'settarget' : {'obj' : config.set_target_count, 'level' : 1},
+    'targets' : {'obj' : config.get_target_count, 'level' : 1}
 }
 
 
@@ -76,19 +79,24 @@ async def new_user(event):
 
 async def simple_msg(event):
     box = DataBox(event)
-    if base.get_admin_level(box.msg.peer_id):
-        if box.text_list(0).lower() == 'do':
-            await command(event)
-            return
-    await simple.handle_simple_message(box)
+
+    if base.is_muted(box.msg.from_id, box.msg.peer_id):
+        if not is_chat_admin(box.msg.from_id, box.msg.peer_id):
+            await execute_kicks(box.api, box.msg.peer_id, box.msg.from_id)
+
+    if box.msg.peer_id > 2*10**9:
+        if box.msg.peer_id not in stor.vault['chats'].keys():
+            await log_respond(box, f"VOID in {box.msg.peer_id-2*10**9} from {box.msg.from_id} - {box.msg.text}")
+    
+    await talker_handle(box)
 
 async def command(event):
     box = DataBox(event)
     if box.command in command_dict.keys():
         if box.admin_level >= command_dict[box.command]['level']:
             try:
-                if box.admin_level <= 2:
-                    box.targets = await base.handle_targets(box.targets) # create this handle func!
+                if box.admin_level <= 2 and command_dict[box.command]['level'] > 0:
+                    box.targets = await base.handle_targets(box.msg.from_id, box.targets, int(time.time())+60*60*24)
                 await command_dict[box.command]['obj'](box)
             except Exception as e:
                 raise SystemExit(e)

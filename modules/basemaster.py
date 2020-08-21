@@ -496,14 +496,15 @@ async def update_vault_admins(Zconnection, wand):
             'name':name,
             'level':level,
             'chats': [0] if level>=3 else [],
-            'targets':[]
+            'targets':{'users':[], 'times':[]}
         }
 
     for admin_id, chat_id in admin_fill:
         stor.vault['admins'][admin_id]['chats'].append(chat_id)
 
     for admin_id, user_id, time_ in targets:
-        stor.vault['admins'][admin_id]['targets'].append((user_id, time_))
+        stor.vault['admins'][admin_id]['targets']['users'].append(user_id)
+        stor.vault['admins'][admin_id]['targets']['times'].append(time_)
 
     await Zconnection.commit()
     
@@ -591,9 +592,31 @@ def verify_chat(chat_id):
     return chat_id in stor.vault['chats'].keys()
         
 
-async def handle_targets(targets):                            # TODO
+async def handle_targets(admin_id, targets, time_):
+    for_delete = []
+    cur_adm_targets = stor.vault['admins'][admin_id]['targets']
+    for num, expire_time in enumerate(cur_adm_targets['times']):
+        if expire_time < time.time():
+            for_delete.append(num)
+    
+    for num in for_delete:
+        cur_adm_targets['times'].pop(num)
+        cur_adm_targets['users'].pop(num)
+    stor.vault['admins'][admin_id]['targets'] = cur_adm_targets
 
-    return targets
+    aviable_slots = stor.config['MAXTARGETS'] - len(cur_adm_targets['users'])
+    result_targets = []
+
+    for target in targets:
+        if target in cur_adm_targets['users']:
+            await add_target(admin_id, target, time_)
+        if aviable_slots:
+            aviable_slots -= 1
+            await add_target(admin_id, target, time_)
+
+    await update_vault_admins()
+    return list(set(targets).intersection(set(stor.vault['admins'][admin_id]['targets']['users'])))
+
 
 async def handle_enter(user_id, chat_id, time_):
     await add_enter(chat_id, user_id, time_)
