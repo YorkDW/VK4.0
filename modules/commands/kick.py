@@ -19,20 +19,13 @@ async def execute_kicks(api, peers, users):
         peers = [peers]
     if not isinstance(users, (list, tuple)):
         users = [users]
-    kick_users = []
-    kick_chats = []
-    res = []
+    for_execue = []
     for user in users:
         for peer in peers:
-            kick_users.append(user)
-            kick_chats.append(peer-2000000000)
-            if len(kick_users) == 25:
-                res += (await kick_them(api=api, chats=kick_chats, users=kick_users)).response
-                kick_users = []
-                kick_chats = []
-    if len(kick_users)>0:
-        res += (await kick_them(api=api, chats=kick_chats, users=kick_users)).response
-    return res
+            for_execue.append(
+                ('messages.removeChatUser', {'chat_id':peer-2000000000, 'user_id':user})
+                )
+    return await stor.execue(api, for_execue)
 
 def remove_protected_targets(box):
     admin = box.msg.from_id

@@ -20,7 +20,7 @@ async def catch_runner(box, user_id):
     return False
     
 async def undesirable (box, user_id):
-    if user_id<0 and user_id != box.event.group_id:
+    if user_id<0:
         await execute_kicks(box.api, box.msg.peer_id, user_id)
         return (True, f"Bot was caught at {box.msg.peer_id}", "I am the only bot here")
     if base.check_gate(box.msg.peer_id):                                    # use asyncio here
@@ -31,6 +31,8 @@ async def undesirable (box, user_id):
 
 @log_and_respond_decorator
 async def check_all(box, user_id):
+    if user_id == box.event.object.group_id*-1:
+        return (True, f"I'm in")
     if not base.verify_chat(box.msg.peer_id):
         return (False, f"New user {user_id} in wrong chat")
     if await check_ban(box, user_id):

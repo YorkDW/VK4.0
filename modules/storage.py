@@ -7,7 +7,7 @@ def dump(obj):
 
 async def execue(api, data_list):
     result = []
-    ex_count = 2
+    ex_count = 25
     for i in range(0,len(data_list), ex_count):
         requests = ','.join(
             [f"API.{method}({str(data)})" for method, data in data_list[i:i+ex_count]]

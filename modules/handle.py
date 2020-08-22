@@ -30,6 +30,7 @@ from modules.commands import (
     talker,
     keyboard,
     config,
+    chattools,
 )
 
 command_dict = {
@@ -66,7 +67,8 @@ command_dict = {
     'settarget' : {'obj' : config.set_target_count, 'level' : 1},
     'targets' : {'obj' : config.get_target_count, 'level' : 1},
     'savebase' : {'obj' : system.base_save, 'level' : 1},
-    'loadbase' : {'obj' : system.base_load, 'level' : 1}
+    'loadbase' : {'obj' : system.base_load, 'level' : 1},
+    'chats' : {'obj' : chattools.all_chats, 'level' : 1}
 }
 
 
@@ -81,7 +83,6 @@ async def new_user(event):
 
 async def simple_msg(event):
     box = DataBox(event)
-
     if base.is_muted(box.msg.from_id, box.msg.peer_id):
         if not is_chat_admin(box.msg.from_id, box.msg.peer_id):
             await execute_kicks(box.api, box.msg.peer_id, box.msg.from_id)

@@ -465,9 +465,9 @@ async def update_vault_enters(Zconnection, wand):
 
     for chat_id, user_id, time_ in enters:
         if user_id not in stor.vault['enters'].keys():
-            stor.vault['enters'][user_id] = [(chat_id, time_)]
-        else:
-            stor.vault['enters'][user_id].append((chat_id, time_))
+            stor.vault['enters'][user_id] = {'chats':[], 'times':[]}
+        stor.vault['enters'][user_id]['chats'].append(chat_id)
+        stor.vault['enters'][user_id]['times'].append(time_)
 
     await Zconnection.commit()
 
@@ -621,8 +621,7 @@ async def handle_targets(admin_id, targets, time_):
 async def handle_enter(user_id, chat_id, time_):
     await add_enter(chat_id, user_id, time_)
     await update_vault_enters()
-    enters = stor.vault['enters'][user_id]
-    return list(map(lambda pair:pair[0], enters))
+    return stor.vault['enters'][user_id]['chats']
 
 def is_banned(user_id, chat_id):
     if user_id not in stor.vault['banlist'].keys():

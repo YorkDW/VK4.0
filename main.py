@@ -13,18 +13,25 @@ from vkwave.bots import (
 )
 from vkwave.types.bot_events import BotEventType
 from vkwave.longpoll import BotLongpollData, BotLongpoll
+from base import baseCreation as bb
 from modules import basemaster as base, handle as hand, storage as stor
 from modules.commands import (
     utils,
     test,
 )
 
+
+
 async def main():
+    # await bb.start()
+    # stor.asyncio_loop.stop()
+    # return 
+
     path = os.path.dirname(os.path.abspath(__file__))
     full_path = f"{path}/base/config{mode}.json"
     with open(full_path, 'r') as file:
         stor.config = json.load(file)
-    bot_token = Token(stor.config['TOKEN'])
+    bot_tokens = Token(stor.config['TOKEN'])
     stor.config['BASEFILE'] = f"{path}/base/{stor.config['BASEFILE']}"
     stor.config['LOGFILE'] = f"{path}/base/{stor.config['LOGFILE']}"
     stor.config['CONFIG'] = full_path
@@ -38,8 +45,8 @@ async def main():
     stor.start_time = int(time.time())
 
     client = AIOHTTPClient()
-    token = BotSyncSingleToken(bot_token)
-    api_session = API(token, client)
+    tokens = [BotSyncSingleToken(tok) for tok in bot_tokens]
+    api_session = API(tokens, client)
     api = api_session.get_context()
     lp_data = BotLongpollData(stor.config['GROUP_ID'])
     longpoll = BotLongpoll(api, lp_data)
@@ -55,7 +62,7 @@ async def main():
 
 
 
-mode = 1
+mode = 2
 
 
 
