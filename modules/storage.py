@@ -26,6 +26,7 @@ vault = {}
 config = {}
 start_time = 0
 asyncio_loop = None
+time_day = 86400 # 60*60*24
 
 
 

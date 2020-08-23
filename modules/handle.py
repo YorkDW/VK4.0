@@ -35,40 +35,38 @@ from modules.commands import (
 
 command_dict = {
     'kick' : {'obj' : kick.kick_for_handle, 'level' : 1},
-    'broadcast' : {'obj' : broadcast.broadcast, 'level' : 1},
-    't' : {'obj' : test.test, 'level' : 1},
-    'op' : {'obj' : chatcontrol.add_admin, 'level' : 1},
-    'deop' : {'obj' : chatcontrol.del_admin, 'level' : 1},
-    'addchat' : {'obj' : chatcontrol.add_chat, 'level' : 1},
-    'delchat' : {'obj' : chatcontrol.del_chat, 'level' : 1},
-    'addgroup' : {'obj' : chatcontrol.add_group, 'level' : 1},
-    'delgroup' : {'obj' : chatcontrol.del_group, 'level' : 1},
-    'addchattogroup' : {'obj' : chatcontrol.add_chat_to_group, 'level' : 1},
-    'delchatfromgroup' : {'obj' : chatcontrol.del_chat_from_group, 'level' : 1},
-    'addadmintochat' : {'obj' : chatcontrol.add_admin_to_chat, 'level' : 1},
-    'deladminfromchat' : {'obj' : chatcontrol.del_admin_from_chat, 'level' : 1},
+    'broadcast' : {'obj' : broadcast.broadcast, 'level' : 3},
+    'op' : {'obj' : chatcontrol.add_admin, 'level' : 4},
+    'deop' : {'obj' : chatcontrol.del_admin, 'level' : 4},
+    'addchat' : {'obj' : chatcontrol.add_chat, 'level' : 3},
+    'delchat' : {'obj' : chatcontrol.del_chat, 'level' : 3},
+    'addgroup' : {'obj' : chatcontrol.add_group, 'level' : 3},
+    'delgroup' : {'obj' : chatcontrol.del_group, 'level' : 3},
+    'addchattogroup' : {'obj' : chatcontrol.add_chat_to_group, 'level' : 3},
+    'delchatfromgroup' : {'obj' : chatcontrol.del_chat_from_group, 'level' : 3},
+    'addadmintochat' : {'obj' : chatcontrol.add_admin_to_chat, 'level' : 3},
+    'deladminfromchat' : {'obj' : chatcontrol.del_admin_from_chat, 'level' : 3},
     'ban' : {'obj' : ban.add_ban, 'level' : 1},
-    'forgive' : {'obj' : ban.del_ban, 'level' : 1},
-    'permban' : {'obj' : ban.add_perm_ban, 'level' : 1},
-    'delpermban' : {'obj' : ban.del_perm_ban, 'level' : 1},
+    'forgive' : {'obj' : ban.del_ban, 'level' : 2},
+    'permban' : {'obj' : ban.add_perm_ban, 'level' : 2},
+    'delpermban' : {'obj' : ban.del_perm_ban, 'level' : 3},
     'uptime' : {'obj' : system.uptime, 'level' : 1},
-    'stop' : {'obj' : system.stop, 'level' : 1},
-    'log' : {'obj' : system.log, 'level' : 1},
-    'clearlog' : {'obj' : system.clear_log, 'level' : 1},
-    'basedump' : {'obj' : system.base_dump, 'level' : 1},
-    'mute' : {'obj' : chatstatuses.add_mute, 'level' : 1},
-    'unmute' : {'obj' : chatstatuses.del_mute, 'level' : 1},
-    'closegate' : {'obj' : chatstatuses.add_gate, 'level' : 1},
-    'opengate' : {'obj' : chatstatuses.del_gate, 'level' : 1},
+    'stop' : {'obj' : system.stop, 'level' : 4},
+    'log' : {'obj' : system.log, 'level' : 4},
+    'clearlog' : {'obj' : system.clear_log, 'level' : 4},
+    'mute' : {'obj' : chatstatuses.add_mute, 'level' : 2},
+    'unmute' : {'obj' : chatstatuses.del_mute, 'level' : 2},
+    'closegate' : {'obj' : chatstatuses.add_gate, 'level' : 2},
+    'opengate' : {'obj' : chatstatuses.del_gate, 'level' : 2},
     'chatstatus' : {'obj' : chatstatuses.get_chat_statuses, 'level' : 1},
-    'actt' : {'obj' : talker.activate_talker, 'level' : 1},
-    'deactt' : {'obj' : talker.deactivate_talker, 'level' : 1},
-    'setcatch' : {'obj' : config.set_enter_count, 'level' : 1},
-    'settarget' : {'obj' : config.set_target_count, 'level' : 1},
+    'actt' : {'obj' : talker.activate_talker, 'level' : 3},
+    'deactt' : {'obj' : talker.deactivate_talker, 'level' : 3},
+    'setcatch' : {'obj' : config.set_enter_count, 'level' : 3},
+    'settarget' : {'obj' : config.set_target_count, 'level' : 3},
     'targets' : {'obj' : config.get_target_count, 'level' : 1},
-    'savebase' : {'obj' : system.base_save, 'level' : 1},
-    'loadbase' : {'obj' : system.base_load, 'level' : 1},
-    'chats' : {'obj' : chattools.all_chats, 'level' : 1}
+    'savebase' : {'obj' : system.base_save, 'level' : 4},
+    'loadbase' : {'obj' : system.base_load, 'level' : 4},
+    'chats' : {'obj' : chattools.all_chats, 'level' : 3}
 }
 
 
@@ -99,7 +97,7 @@ async def command(event):
         if box.admin_level >= command_dict[box.command]['level']:
             try:
                 if box.admin_level <= 2 and command_dict[box.command]['level'] > 0:
-                    box.targets = await base.handle_targets(box.msg.from_id, box.targets, int(time.time())+60*60*24)
+                    box.targets = await base.handle_targets(box.msg.from_id, box.targets, int(time.time())+stor.time_day)
                 await command_dict[box.command]['obj'](box)
             except Exception as e:
                 raise SystemExit(e)
@@ -132,8 +130,10 @@ async def initiate_router(router):
     router.registrar.register(
         router.registrar.new()
         .with_filters(
+            EventTypeFilter('message_new') & (
             ChatActionFilter(MessagesMessageActionStatus.CHAT_INVITE_USER) |
             ChatActionFilter(MessagesMessageActionStatus.CHAT_INVITE_USER_BY_LINK)
+            )
         )
         .handle(new_user)
         .ready()

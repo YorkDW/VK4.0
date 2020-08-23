@@ -621,7 +621,6 @@ async def handle_targets(admin_id, targets, time_):
 async def handle_enter(user_id, chat_id, time_):
     await add_enter(chat_id, user_id, time_)
     await update_vault_enters()
-    return stor.vault['enters'][user_id]['chats']
 
 def is_banned(user_id, chat_id):
     if user_id not in stor.vault['banlist'].keys():

@@ -55,14 +55,6 @@ async def clear_log(box):
         file.write(''.join(lines[len(lines)-count:]))
 
     return (True, "Log was cleared", "Log was cleared")
-    
-@log_and_respond_decorator
-async def base_dump(box):
-    if box.msg.peer_id > 2000000000:
-        return (False, "Unable to send base dump in conversation", "You can't request dump here")
-    return (True, "TODO", "TODO")
-    
-
 
 @log_and_respond_decorator
 async def base_save(box):
