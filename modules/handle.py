@@ -82,8 +82,8 @@ async def new_user(event):
 async def simple_msg(event):
     box = DataBox(event)
     if base.is_muted(box.msg.from_id, box.msg.peer_id):
-        if not is_chat_admin(box.msg.from_id, box.msg.peer_id):
-            await execute_kicks(box.api, box.msg.peer_id, box.msg.from_id)
+        if not base.is_chat_admin(box.msg.from_id, box.msg.peer_id):
+            await kick.execute_kicks(box.api, box.msg.peer_id, box.msg.from_id)
 
     if box.msg.peer_id > 2*10**9:
         if box.msg.peer_id not in stor.vault['chats'].keys():

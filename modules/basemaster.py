@@ -586,7 +586,7 @@ def get_chats_by_admin(user_id):
 
 def check_gate(chat_id):
     if chat_id in stor.vault['chats']:
-        return True if stor.vault['chats']>time.time() else False
+        return True if stor.vault['chats']['gate']>time.time() else False
 
 def verify_chat(chat_id):
     return chat_id in stor.vault['chats'].keys()

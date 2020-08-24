@@ -55,7 +55,7 @@ async def broadcast(box):
             for_send_with_calls["message"] += call_list[peer]
         msg_list = await split_message_dict(for_send_with_calls)
         for msg in msg_list:
-            for_execue.append(("messages.send",msg))
+            for_execue.append(("messages.send",msg.copy()))
             for_execue[-1][1].update({"peer_id":peer, "random_id":random.randint(50000,2000000000)})
     
     result = await stor.execue(box.api, for_execue)

@@ -54,11 +54,11 @@ async def check_all(box, user_id):
     if user_id == box.event.object.group_id*-1:
         return (True, f"I'm in")
     if not base.verify_chat(box.msg.peer_id):
-        return (False, f"New user {user_id} in wrong chat")
+        return (False, f"New user in wrong chat")
     if await check_ban(box, user_id):
-        return (True, f"Ban triggered by {user_id}")
+        return (True, f"Ban was triggered")
     if base.is_chat_admin(box.msg.from_id, box.msg.peer_id):
         return (True, "Under admin's control")
     if await catch_runner(box, user_id):
-        return (True, f"Runner {user_id} was caught")
+        return (True, f"Runner was caught")
     return await undesirable(box, user_id)
