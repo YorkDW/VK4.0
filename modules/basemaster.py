@@ -14,9 +14,9 @@ class st:
 def logging_decorator(func):
     async def log_after(*args, **kwargs):
         status, respond = await func(*args, **kwargs)
-        intro = 'Done:' if status else 'FAIL:'
+        # intro = 'Done:' if status else 'FAIL:'
         level = 11 if status else 13
-        st.logger.log(level, f" {intro} {func.__name__}{args}{kwargs} - {respond}")
+        st.logger.log(level, f" {func.__name__}{args}{kwargs if kwargs else ''} - {respond}")
         return (status, respond)
     return log_after
 
@@ -586,7 +586,7 @@ def get_chats_by_admin(user_id):
 
 def check_gate(chat_id):
     if chat_id in stor.vault['chats']:
-        return True if stor.vault['chats']['gate']>time.time() else False
+        return True if stor.vault['chats'][chat_id]['gate']>time.time() else False
 
 def verify_chat(chat_id):
     return chat_id in stor.vault['chats'].keys()

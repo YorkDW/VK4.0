@@ -48,6 +48,18 @@ class DataBox:
         else:
             return text_list[pos]
 
+    def get_by_name(self, name, type_name = False):
+        for word in self.event.object.object.message.text.split(' '):
+            if word.startswith(f"{name}="):
+                named_param = word.split('=')[1]
+                if type_name:
+                    try:
+                        return type_name(named_param)
+                    except:
+                        continue
+                return word.split('=')[1]
+        return ""
+
     @property
     def param(self):
         text_list = self.msg.text.split(' ')

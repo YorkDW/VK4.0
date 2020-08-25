@@ -51,7 +51,7 @@ async def get_message_resend_dict(api, msgs):
             attach_list = []
             for attach in msg.attachments:
                 attach_list.append(await handle_attachmen(attach, api))
-            attach_list = list(filter(att, attach_list))
+            attach_list = list(filter(None, attach_list))
             resend_dict['attachment'] += attach_list
     return resend_dict
 

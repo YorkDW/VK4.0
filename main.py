@@ -35,11 +35,17 @@ async def main():
     stor.config['CONFIG'] = full_path
 
     logging.basicConfig(level=11,filename=stor.config['LOGFILE'])
+    logging.addLevelName(11,'OK')
+    logging.addLevelName(12,'DONE')
+    logging.addLevelName(13,'NO')
+    logging.addLevelName(14,'BAD')
+
     base_logger = logging.getLogger('base')
     base_logger.setLevel(10)
     command_logger = logging.getLogger('co')
     command_logger.setLevel(10)
     utils.st.logger = command_logger
+
     stor.start_time = int(time.time())
 
     client = AIOHTTPClient()

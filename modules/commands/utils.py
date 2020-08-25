@@ -30,14 +30,27 @@ def log_and_respond_decorator(func):
 
         status, log = status_log_answer[0], status_log_answer[1]
         answer = status_log_answer[2] if len(status_log_answer) == 3 else False
-        
-        time.perf_counter()
-        intro = 'Done:' if status else 'FAIL:'
+        # intro = 'Done:' if status else 'FAIL:'
         level = 12 if status else 14
         work_time = int((time.perf_counter() - args[0].start_time)*1000)
-        begin = f"{intro} ({work_time}ms) {func.__name__}{args[1:]}{kwargs if kwargs else ''}"
-        peer = args[0].msg.peer_id-2000000000 if args[0].msg.peer_id > 2000000000 else args[0].msg.peer_id
-        for_log = f"{begin} from {peer} by {args[0].msg.from_id} - {log}"
+        func_param = f"{func.__name__}{args[1:]}{kwargs if kwargs else ''}"
+
+        peer_id = args[0].msg.peer_id
+        if peer_id in stor.vault['chats']:
+            from_peer = f"from {stor.vault['chats'][peer_id]['name']}"
+        elif peer_id in stor.vault['admins']:
+            from_peer = ''
+        elif peer_id > 2*10**9:
+            from_peer = f"from {peer_id-2*10**9}"
+        else:
+            from_peer = f"from {peer_id}"
+
+        if args[0].msg.from_id in stor.vault['admins'].keys():
+            user = stor.vault['admins'][args[0].msg.from_id]['name']
+        else:
+            user = args[0].msg.from_id
+
+        for_log = f"({work_time}ms) {func_param} {from_peer} by {user} - {log}"
 
         await log_respond(args[0], for_log, answer, level)
         return (status, log, answer)

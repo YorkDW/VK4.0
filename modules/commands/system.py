@@ -1,4 +1,4 @@
-import datetime, requests
+import datetime, requests, logging
 from vkwave.bots.utils.uploaders.doc_uploader import DocUploader
 from modules.commands.utils import *
 from modules.message import send_new
@@ -75,3 +75,16 @@ async def base_load(box):
     with open(stor.config['BASEFILE'], 'wb') as file:
         file.write(basefile.content)
     return (True, "Base loaded", "Base loaded")
+
+@log_and_respond_decorator
+async def log_level(box):
+    try:
+        level = int(box.param)
+    except:
+        return (False, 'Wrong level', 'Wrong level')
+    
+    await log_respond(box, f"{stor.vault['admins'][box.msg.from_id]['name']} set logging level to {level}")
+    logging.getLogger('base').setLevel(level)
+    logging.getLogger('co').setLevel(level)
+    
+    return (True, f"logging level set to {level}", f"logging level set to {level}")
