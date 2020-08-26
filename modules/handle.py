@@ -66,7 +66,7 @@ command_dict = {
     'targets' : {'obj' : config.get_target_count, 'level' : 1},
     'savebase' : {'obj' : system.base_save, 'level' : 4},
     'loadbase' : {'obj' : system.base_load, 'level' : 4},
-    'c' : {'obj' : chattools.aviable_chats, 'level' : 1},
+    'chats' : {'obj' : chattools.aviable_chats, 'level' : 1},
     'loglevel' : {'obj' : system.log_level, 'level' : 4}
 }
 
