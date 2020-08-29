@@ -2,7 +2,6 @@ import json
 from modules.commands.utils import *
 
 async def save_config():
-    
     with open(stor.config['CONFIG'], "r") as file:
         for_save = json.load(file)
     
