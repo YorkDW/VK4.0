@@ -67,7 +67,9 @@ command_dict = {
     'savebase' : {'obj' : system.base_save, 'level' : 4},
     'loadbase' : {'obj' : system.base_load, 'level' : 4},
     'chats' : {'obj' : chattools.aviable_chats, 'level' : 1},
-    'loglevel' : {'obj' : system.log_level, 'level' : 4}
+    'loglevel' : {'obj' : system.log_level, 'level' : 4},
+    'admins' : {'obj' : system.get_admins, 'level' : 3},
+    'banlist' : {'obj' : system.get_banlist, 'level' : 3}
 }
 
 

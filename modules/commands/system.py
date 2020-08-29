@@ -6,15 +6,9 @@ from modules.message import send_new
 @log_and_respond_decorator
 async def uptime(box):
     start = datetime.datetime.fromtimestamp(stor.start_time)
-    delta = datetime.datetime.today() - start
-    hours, temp = divmod(delta.seconds,3600)
-    minutes, seconds = divmod(temp, 60)
-    for_send = f"{str(hours).zfill(2)}:{str(minutes).zfill(2)}:{str(seconds).zfill(2)}"
-    if delta.days == 1:
-        for_send = f"1 day, {for_send}"
-    elif delta.days > 1:
-        for_send = f"{delta.days} days, {for_send}"
-    return (True, for_send, for_send)
+    delta = datetime.datetime.now() - start
+    answer = str(delta)[:str(delta).rfind('.')]
+    return (True, answer, answer)
 
 async def stop(box):
     log = f"{box.msg.from_id} used stop"
@@ -88,3 +82,57 @@ async def log_level(box):
     logging.getLogger('co').setLevel(level)
     
     return (True, f"logging level set to {level}", f"logging level set to {level}")
+
+@log_and_respond_decorator
+async def get_admins(box):
+    await base.update_vault_admins()
+
+    res = []
+    for admin_id, data in stor.vault['admins'].items():
+        block = []
+        if box.targets:
+            if admin_id not in box.targets:
+                continue
+        block.append(f"{data['name']}: [id{admin_id}|*id{admin_id}], level: {data['level']}")
+
+        chat_list = []
+        for chat in data['chats']:
+            if chat != 0:
+                chat_list.append(stor.vault['chats'][chat]['name'])
+            else:
+                chat_list.append('all')
+        block.append("chats: " + ', '.join(chat_list))
+
+        targets = []
+        for i in range(len(data['targets']['users'])):
+            user = f"[id{data['targets']['users'][i]}|*id{data['targets']['users'][i]}]"
+            time_ = datetime.datetime.now()-datetime.datetime.fromtimestamp(data['targets']['times'][i])
+            targets.append(f"{user}: {str(time_)[:str(time_).rfind('.')]}")
+        block.append("targets:"+'\n'.join(targets))
+        res.append('\n'.join(block))
+
+    if not res:
+        return (False, "Empty list", "Empty list")
+
+    return (True, "Responded", '\n\n'.join(res))
+
+@log_and_respond_decorator
+async def get_banlist(box):
+    everywhere = []
+    others = []
+    for user_id, chats in stor.vault['banlist'].items():
+        if 0 in chats:
+            everywhere.append(f"[id{user_id}|{user_id}]")
+        if 0 not in chats or len(chats)>1:
+            banned_chats = []
+            for chat_id in chats:
+                if not chat_id:
+                    continue
+                banned_chats.append(stor.vault['chats'][chat_id]['name'])
+            others.append(f"[id{user_id}|{user_id}]: {', '.join(banned_chats)}")
+    everywhere_str = f"everywhere: {', '.join(everywhere)}"
+    other_str ='\n'.join(others)
+    return (True, "Responded", everywhere_str + '\n' + other_str)
+                
+
+

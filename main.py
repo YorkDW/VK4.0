@@ -1,4 +1,8 @@
-import logging, time, os, json, asyncio
+import logging, time, os, json, asyncio,vkwave, datetime
+ 
+from vkwave.bots.core.dispatching.extensions.callback import AIOHTTPCallbackExtension
+from vkwave.bots.core.dispatching.extensions.callback.conf import ConfirmationStorage
+
 
 from vkwave.client import AIOHTTPClient
 from vkwave.api import BotSyncSingleToken, Token, API
@@ -56,17 +60,34 @@ async def main():
     longpoll = BotLongpoll(api, lp_data)
     token_storage = TokenStorage[GroupId]()
     dp = Dispatcher(api_session, token_storage)
-    lp_extension = BotLongpollExtension(dp, longpoll)
-
     dp.add_router(await hand.initiate_router(DefaultRouter()))
-    await base.initiate(stor.config['BASEFILE'], base_logger)
     await dp.cache_potential_tokens()
-    # await test.test_all()
-    await lp_extension.start()
+    await base.initiate(stor.config['BASEFILE'], base_logger)
+
+    storage = ConfirmationStorage()
+    storage.add_confirmation(GroupId(stor.config['GROUP_ID']),stor.config['CONFIRMATION'])
+
+
+    cb_extension = AIOHTTPCallbackExtension(
+        dp, path="/", host="127.0.0.1", port=8080, secret=stor.config['SECRET'], confirmation_storage=storage
+    )
+
+
+
+    lp_extension = BotLongpollExtension(dp, longpoll)
+    
+    if type_ =="cb":
+        pass
+        # await cb_extension.start()
+    elif type_ =="lp":
+        await lp_extension.start()
+    else:
+        raise SystemExit('bad type_ cb/lp')
 
 
 
 mode = 2
+type_ = "lp"
 
 
 
