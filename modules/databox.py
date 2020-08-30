@@ -3,15 +3,6 @@ import modules.basemaster as base
 import modules.storage as stor
 
 
-def get_id_from_word(word:str):
-    if not (word.startswith('[id') or word.startswith('[club')):
-        return False
-    partWithId = word.split('|')[0]
-    supposedId = partWithId.replace('[id','').replace('[club','-')
-    try:
-        return int(supposedId)
-    except:
-        return False
 
 class DataBox:
 
@@ -79,7 +70,7 @@ class DataBox:
             return self.handled_targets
         targets = []
         for word in self.msg.text.split(' '):
-            targ = get_id_from_word(word)
+            targ = self.get_id_from_word(word)
             if targ:
                 targets.append(targ)
         for fwd in self.msg.fwd_messages:
@@ -146,3 +137,14 @@ class DataBox:
             return
         if target in self.handled_targets:
             self.handled_targets.remove(target)
+
+    @staticmethod
+    def get_id_from_word(word:str):
+        if not (word.startswith('[id') or word.startswith('[club')):
+            return False
+        partWithId = word.split('|')[0]
+        supposedId = partWithId.replace('[id','').replace('[club','-')
+        try:
+            return int(supposedId)
+        except:
+            return False

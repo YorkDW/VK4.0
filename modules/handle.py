@@ -14,8 +14,7 @@ from vkwave.bots import (
 from vkwave.types.objects import MessagesMessageActionStatus
 from vkwave.types.bot_events import BotEventType
 from vkwave.bots.core.dispatching.filters.base import BaseFilter, BaseEvent, FilterResult
-import modules.storage as stor
-import modules.basemaster as base
+from modules.commands.utils import *
 from modules.databox import DataBox
 from modules.commands import (
     kick,
@@ -32,6 +31,47 @@ from modules.commands import (
     config,
     chattools,
 )
+
+@log_and_respond_decorator
+async def do_as_someone(box): # just cause
+    target = box.get_id_from_word(box.text_list(2))
+    if not target:
+        return (False, 'Wrong target', 'Wrong target')
+
+    new_text = ' '.join(box.text_list()[0:1] + box.text_list()[3:])
+    old_from_id = box.event.object.object.message.from_id
+
+    box.event.object.object.message.text = new_text
+    box.event.object.object.message.from_id = target
+
+    await command(box.event)
+    box.event.object.object.message.from_id = old_from_id
+
+    return (True, f"Done as {target}", f"Done as [id{target}|*id{target}]")
+
+@log_and_respond_decorator
+async def do_from_somewhere(box): # just cause
+    if len(box.chats) > 1:
+        return (False, 'Only one chat needed', 'Only one chat needed')
+
+    if box.chats:
+        target = box.chats[0]
+    else:
+        target = box.get_id_from_word(box.text_list(2))
+
+    if not target:
+        return (False, 'Wrong chat', 'Wrong chat')
+
+    new_text = ' '.join(box.text_list()[0:1] + box.text_list()[3:])
+    old_peer_id = box.event.object.object.message.peer_id
+
+    box.event.object.object.message.peer_id = target
+    box.event.object.object.message.text = new_text
+
+    await command(box.event)
+    box.event.object.object.message.peer_id = old_peer_id
+
+    return (True, f"Done from {target}", f"Done from {target}")
 
 command_dict = {
     'kick' : {'obj' : kick.kick_for_handle, 'level' : 1},
@@ -69,7 +109,9 @@ command_dict = {
     'chats' : {'obj' : chattools.aviable_chats, 'level' : 1},
     'loglevel' : {'obj' : system.log_level, 'level' : 4},
     'admins' : {'obj' : system.get_admins, 'level' : 3},
-    'banlist' : {'obj' : system.get_banlist, 'level' : 3}
+    'banlist' : {'obj' : system.get_banlist, 'level' : 3},
+    'as' : {'obj' : do_as_someone, 'level' : 4},
+    'from' : {'obj' : do_from_somewhere, 'level' : 4}
 }
 
 

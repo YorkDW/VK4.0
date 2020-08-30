@@ -18,9 +18,9 @@ async def execue(api, data_list):
     return result
 
 talker = {
-    "console" : 0,
-    "user" : 0,
-    "target" : 0
+    'users': [],
+    'consoles': [],
+    'targets': []
 }
 vault = {}
 config = {}
