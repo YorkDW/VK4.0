@@ -17,7 +17,8 @@ async def save_config():
 @log_and_respond_decorator
 async def set_target_count(box):
     if not box.param.isdigit():
-        return (False, "Wrong param", "Choose count of targets")
+        answer = f"Current target count is {stor.config['MAXTARGETS']}"
+        return (True, answer, answer)
     stor.config['MAXTARGETS'] = int(box.param)
     await save_config()
     log = f"Target count set to {box.param}"
@@ -26,7 +27,8 @@ async def set_target_count(box):
 @log_and_respond_decorator
 async def set_enter_count(box):
     if not box.param.isdigit():
-        return (False, "Wrong param", "Choose count of enters")
+        answer = f"Current catch count is {str(stor.config['MAXENTERS'])}"
+        return (True, answer, answer)
     stor.config['MAXENTERS'] = int(box.param)
     await save_config()
     log = f"Enter count set to {box.param}"

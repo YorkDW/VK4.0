@@ -75,7 +75,8 @@ async def log_level(box):
     try:
         level = int(box.param)
     except:
-        return (False, 'Wrong level', 'Wrong level')
+        answer = f"Current logging level is {logging.getLogger('base').level}"
+        return (True, answer, answer)
     
     await log_respond(box, f"{stor.vault['admins'][box.msg.from_id]['name']} set logging level to {level}")
     logging.getLogger('base').setLevel(level)
