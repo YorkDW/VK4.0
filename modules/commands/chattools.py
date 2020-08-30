@@ -3,6 +3,8 @@ from modules.commands.utils import *
 @log_and_respond_decorator
 async def aviable_chats(box):
     extended_mode = False
+    chat_ids = []
+
     if box.chats:
         chat_ids = box.chats
     elif box.admin_level >= 3:
@@ -36,10 +38,16 @@ async def aviable_chats(box):
     result = []
     for pack in respond:
         for chat in pack['items']:
-            chat_id = chat['peer']['local_id']
+            short_chat_id = chat['peer']['local_id']
+            chat_id = chat['peer']['id']
             name = chat['chat_settings']['title']
-            foreign = extended_mode and chat['peer']['id'] not in chats_in_vault
-            result.append((foreign, chat_id,name))
+            inner_name = foreign = ''
+            if chat_id in stor.vault['chats'].keys():
+                inner_name = f"({stor.vault['chats'][chat_id]['name']})"
+            else:
+                foreign = '!'
+            
+            result.append((foreign, short_chat_id, inner_name, name))
 
-    for_send = '\n'.join(map(lambda pair: f"{'! 'if pair[0] else ''}{pair[1]} : {pair[2]}", result))
+    for_send = '\n'.join(map(lambda pair: f"{pair[0]} {pair[1]} {pair[2]}: {pair[3]}", result))
     return (True, f"{len(result)} chats", for_send)

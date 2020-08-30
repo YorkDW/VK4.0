@@ -96,31 +96,44 @@ class DataBox:
         if self.handled_chats is not None:
             return self.handled_chats
         try:
-            supposedGroup = self.msg.text.split(' ')[2]
+            word_of_chats = self.msg.text.split(' ')[2]
         except:
             self.handled_chats = []
             return self.handled_chats
 
-        chatList = []
-        if supposedGroup == 'here':
-            chatList =  [self.msg.peer_id]
-        elif supposedGroup == 'all':
-            chatList = list(stor.vault['chats'].keys())
-        else:
-            chatList = stor.vault['groups'].get(supposedGroup, False)
-        if not chatList:
-            try:
-                chatList = list(map(int,supposedGroup.split(',')))
-                chatList = [chat if chat>10000 else chat+2000000000 for chat in chatList]
-            except:
-                self.handled_chats = []
-                return self.handled_chats
+        chat_list = []
+
+        # temporary solution for faster chat name search
+        chat_name_dict = {data['name']:chat_id for chat_id, data in stor.vault['chats'].items()}
+
+        for pointer in word_of_chats.split(','):
+            if pointer == 'here':
+                chat_list.append(self.msg.peer_id)
+
+            elif pointer == 'all':
+                chat_list.extend(list(stor.vault['chats'].keys()))
+
+            elif pointer in stor.vault['groups'].keys():
+                chat_list.extend(stor.vault['groups'][pointer])
+            
+            elif pointer in chat_name_dict.keys():
+                chat_list.append(chat_name_dict[pointer])
+
+            elif pointer.isdigit():
+                chat_id = int(pointer)
+                chat_list.append(chat_id if chat_id>1000 else chat_id+2*10**9)
+
+        if not chat_list:
+            self.handled_chats = []
+            return self.handled_chats
 
         admins_chats = base.get_chats_by_admin(self.msg.from_id)
+
         if 0 in admins_chats:
-            self.handled_chats = chatList
+            self.handled_chats = chat_list
         else:
-            self.handled_chats = list(set(chatList).intersection(set(admins_chats)))
+            self.handled_chats = list(set(chat_list).intersection(set(admins_chats)))
+            
         return self.handled_chats
 
     def _set_chats(self, chats:list):

@@ -69,7 +69,7 @@ async def main():
 
 
     cb_extension = AIOHTTPCallbackExtension(
-        dp, path="/", host="127.0.0.1", port=8080, secret=stor.config['SECRET'], confirmation_storage=storage
+        dp, path="/", host="0.0.0.0", port=80, secret=stor.config['SECRET'], confirmation_storage=storage
     )
 
 
@@ -77,8 +77,7 @@ async def main():
     lp_extension = BotLongpollExtension(dp, longpoll)
     
     if type_ =="cb":
-        pass
-        # await cb_extension.start()
+        await cb_extension.start()
     elif type_ =="lp":
         await lp_extension.start()
     else:
@@ -87,6 +86,7 @@ async def main():
 
 
 mode = 2
+
 type_ = "lp"
 
 
