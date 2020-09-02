@@ -30,6 +30,7 @@ from modules.commands import (
     keyboard,
     config,
     chattools,
+    usertools,
 )
 
 @log_and_respond_decorator
@@ -111,7 +112,10 @@ command_dict = {
     'admins' : {'obj' : system.get_admins, 'level' : 3},
     'banlist' : {'obj' : system.get_banlist, 'level' : 3},
     'as' : {'obj' : do_as_someone, 'level' : 4},
-    'from' : {'obj' : do_from_somewhere, 'level' : 4}
+    'from' : {'obj' : do_from_somewhere, 'level' : 4},
+    'delete' : {'obj' : usertools.delete_message, 'level' : 4},
+    'cleanchat' : {'obj' : usertools.clean_conversation, 'level' : 4}
+
 }
 
 

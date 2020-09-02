@@ -1,6 +1,8 @@
 from modules.commands.utils import *
 from modules.message import split_message_dict, get_message_resend_dict, send_new
 
+# do as "broadcast + any func"
+
 async def get_call_list(api, chats):  
         call_ids = call_list = {}
         for_execue = []

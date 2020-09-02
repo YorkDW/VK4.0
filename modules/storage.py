@@ -5,6 +5,9 @@ def dump(obj):
         json.dump(obj, file, ensure_ascii = False, indent = 2)
     print("dumped")
 
+def do(func):
+    asyncio_loop.create_task(func)
+
 async def execue(api, data_list):
     result = []
     ex_count = 25
@@ -27,3 +30,5 @@ config = {}
 start_time = 0
 asyncio_loop = None
 time_day = 86400 # 60*60*24
+user_api = None
+enters = {}

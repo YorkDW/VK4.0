@@ -528,7 +528,8 @@ async def update_vault_all():
     await update_vault_chats()
     await update_vault_banlist()
     await update_vault_admins()
-    await update_vault_enters()
+    stor.vault['enters'] = {}
+    # await update_vault_enters()
     await update_vault_groups()
 
 

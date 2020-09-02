@@ -2,18 +2,6 @@ from vkwave.vkscript import execute
 from modules.commands.utils import *
 
 
-
-@execute
-def kick_them(api, chats: list, users: list):
-    i=0
-    res = []
-    while i<len(users):
-        res.append(api.messages.removeChatUser(
-            chat_id=chats[i],
-            user_id=users[i]))
-        i+=1
-    return res
-
 async def execute_kicks(api, peers, users):
     if not isinstance(peers, (list, tuple)):
         peers = [peers]
@@ -23,7 +11,7 @@ async def execute_kicks(api, peers, users):
     for user in users:
         for peer in peers:
             for_execue.append(
-                ('messages.removeChatUser', {'chat_id':peer-2000000000, 'user_id':user})
+                ('messages.removeChatUser', {'chat_id':peer-2000000000, 'member_id':user})
                 )
     return await stor.execue(api, for_execue)
 
@@ -44,6 +32,7 @@ async def kick(box):
     errors = check_zeros({"target":box.targets, "chat":box.chats})
     if errors:
         return (False, errors, errors)
+
     res = await execute_kicks(box.api, box.chats, box.targets)
 
     return (True, f"kicked {box.targets}, {get_stat(res)}", f"result {get_stat(res)}")

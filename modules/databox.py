@@ -75,6 +75,8 @@ class DataBox:
                 targets.append(targ)
         for fwd in self.msg.fwd_messages:
             targets.append(fwd.from_id)
+        if self.msg.reply_message:
+            targets.append(self.msg.reply_message.from_id)
         self.handled_targets = list(set(targets)-set([self.event.object.group_id*-1]))
         return self.handled_targets
 

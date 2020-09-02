@@ -1,10 +1,10 @@
-import logging, time, os, json, asyncio,vkwave, datetime
+import logging, time, os, json, asyncio, vkwave, datetime
  
 from vkwave.bots.core.dispatching.extensions.callback import AIOHTTPCallbackExtension
 from vkwave.bots.core.dispatching.extensions.callback.conf import ConfirmationStorage
 
-
 from vkwave.client import AIOHTTPClient
+from vkwave.api.token.token import UserSyncSingleToken
 from vkwave.api import BotSyncSingleToken, Token, API
 from vkwave.bots import (
     TokenStorage,
@@ -34,6 +34,7 @@ async def main():
     with open(full_path, 'r') as file:
         stor.config = json.load(file)
     bot_tokens = Token(stor.config['TOKEN'])
+    user_tokens = Token(stor.config['USER_TOKEN'])
     stor.config['BASEFILE'] = f"{path}/base/{stor.config['BASEFILE']}"
     stor.config['LOGFILE'] = f"{path}/base/{stor.config['LOGFILE']}"
     stor.config['CONFIG'] = full_path
@@ -52,6 +53,10 @@ async def main():
 
     stor.start_time = int(time.time())
 
+    user_client = AIOHTTPClient()
+    user_tokens = [UserSyncSingleToken(tok) for tok in user_tokens]
+    stor.user_api = API(user_tokens, user_client)
+    
     client = AIOHTTPClient()
     tokens = [BotSyncSingleToken(tok) for tok in bot_tokens]
     api_session = API(tokens, client)
@@ -64,30 +69,19 @@ async def main():
     await dp.cache_potential_tokens()
     await base.initiate(stor.config['BASEFILE'], base_logger)
 
-    storage = ConfirmationStorage()
-    storage.add_confirmation(GroupId(stor.config['GROUP_ID']),stor.config['CONFIRMATION'])
-
-
-    cb_extension = AIOHTTPCallbackExtension(
-        dp, path="/", host="0.0.0.0", port=80, secret=stor.config['SECRET'], confirmation_storage=storage
-    )
-
-
+    # storage = ConfirmationStorage()
+    # storage.add_confirmation(GroupId(stor.config['GROUP_ID']),stor.config['CONFIRMATION'])
+    # cb_extension = AIOHTTPCallbackExtension(
+    #     dp, path="/", host="0.0.0.0", port=80, secret=stor.config['SECRET'], confirmation_storage=storage
+    # )
 
     lp_extension = BotLongpollExtension(dp, longpoll)
     
-    if type_ =="cb":
-        await cb_extension.start()
-    elif type_ =="lp":
-        await lp_extension.start()
-    else:
-        raise SystemExit('bad type_ cb/lp')
-
+    # await cb_extension.start()
+    await lp_extension.start()
 
 
 mode = 2
-
-type_ = "lp"
 
 
 

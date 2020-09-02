@@ -71,7 +71,7 @@ async def base_load(box):
     return (True, "Base loaded", "Base loaded")
 
 @log_and_respond_decorator
-async def log_level(box):
+async def log_level(box): # add loglevel param in conig
     try:
         level = int(box.param)
     except:
