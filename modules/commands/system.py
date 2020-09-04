@@ -71,20 +71,6 @@ async def base_load(box):
     return (True, "Base loaded", "Base loaded")
 
 @log_and_respond_decorator
-async def log_level(box): # add loglevel param in conig
-    try:
-        level = int(box.param)
-    except:
-        answer = f"Current logging level is {logging.getLogger('base').level}"
-        return (True, answer, answer)
-    
-    await log_respond(box, f"{stor.vault['admins'][box.msg.from_id]['name']} set logging level to {level}")
-    logging.getLogger('base').setLevel(level)
-    logging.getLogger('co').setLevel(level)
-    
-    return (True, f"logging level set to {level}", f"logging level set to {level}")
-
-@log_and_respond_decorator
 async def get_admins(box):
     await base.update_vault_admins()
 

@@ -39,7 +39,7 @@ async def main():
     stor.config['LOGFILE'] = f"{path}/base/{stor.config['LOGFILE']}"
     stor.config['CONFIG'] = full_path
 
-    logging.basicConfig(level=11,filename=stor.config['LOGFILE'])
+    logging.basicConfig(level=stor.config['LOGLEVEL'],filename=stor.config['LOGFILE'])
     logging.addLevelName(11,'OK')
     logging.addLevelName(12,'DONE')
     logging.addLevelName(13,'NO')

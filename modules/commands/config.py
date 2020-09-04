@@ -48,8 +48,21 @@ async def get_target_count(box):
     answer = f"You have {result} target slot{'' if result==1 else 's'}"
     return (True, f"{result} targets free", answer)
 
+@log_and_respond_decorator
+async def log_level(box): # add loglevel param in conig
+    try:
+        level = int(box.param)
+    except:
+        answer = f"Current logging level is {stor.config['LOGLEVEL']}"
+        return (True, answer, answer)
     
-
+    await log_respond(box, f"{stor.vault['admins'][box.msg.from_id]['name']} set logging level to {level}")
+    logging.getLogger('base').setLevel(level)
+    logging.getLogger('co').setLevel(level)
+    stor.config['LOGLEVEL'] = level
+    await save_config()
+    
+    return (True, f"logging level set to {level}", f"logging level set to {level}")
     
 
         

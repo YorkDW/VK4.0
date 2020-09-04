@@ -108,13 +108,13 @@ command_dict = {
     'savebase' : {'obj' : system.base_save, 'level' : 4},
     'loadbase' : {'obj' : system.base_load, 'level' : 4},
     'chats' : {'obj' : chattools.aviable_chats, 'level' : 1},
-    'loglevel' : {'obj' : system.log_level, 'level' : 4},
+    'loglevel' : {'obj' : config.log_level, 'level' : 4},
     'admins' : {'obj' : system.get_admins, 'level' : 3},
     'banlist' : {'obj' : system.get_banlist, 'level' : 3},
     'as' : {'obj' : do_as_someone, 'level' : 4},
     'from' : {'obj' : do_from_somewhere, 'level' : 4},
     'delete' : {'obj' : usertools.delete_message, 'level' : 4},
-    'cleanchat' : {'obj' : usertools.clean_conversation, 'level' : 4}
+    'clearchat' : {'obj' : usertools.clean_conversation, 'level' : 4}
 
 }
 
