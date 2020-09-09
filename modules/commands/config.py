@@ -1,4 +1,4 @@
-import json
+import json, logging
 from modules.commands.utils import *
 
 async def save_config():
@@ -56,7 +56,7 @@ async def log_level(box): # add loglevel param in conig
         answer = f"Current logging level is {stor.config['LOGLEVEL']}"
         return (True, answer, answer)
     
-    await log_respond(box, f"{stor.vault['admins'][box.msg.from_id]['name']} set logging level to {level}")
+    await log_respond(box, f"{stor.vault['admins'][box.msg.from_id]['name']} set logging level to {level}", level=66)
     logging.getLogger('base').setLevel(level)
     logging.getLogger('co').setLevel(level)
     stor.config['LOGLEVEL'] = level

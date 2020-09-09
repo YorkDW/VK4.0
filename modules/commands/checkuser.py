@@ -26,7 +26,7 @@ def catch_runner(box, user_id):
     count_of_enters = len(stor.vault['enters'][user_id]['chats'])
 
     if count_of_enters == stor.config['MAXENTERS']:
-        stor.do(send_answer(box, "You will be kicked for any enterance in 24 hours"))
+        stor.do(send_answer(box, "You will be kicked for entering any chat in 24 hours"))
 
     return count_of_enters > stor.config['MAXENTERS']
     
@@ -58,4 +58,5 @@ async def check_all(box, user_id):
         await execute_kicks(box.api, box.msg.peer_id, user_id)
         return (True, f"Runner was caught")
 
-    return (True, f"User {user_id} was welcomed")
+    not_from_target = f"{user_id} " if user_id != box.msg.from_id else ''
+    return (True, f"User {not_from_target}welcomed")

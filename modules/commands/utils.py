@@ -36,21 +36,27 @@ def log_and_respond_decorator(func):
         func_param = f"{func.__name__}{args[1:]}{kwargs if kwargs else ''}"
 
         peer_id = args[0].msg.peer_id
+        from_id = args[0].msg.from_id
+
         if peer_id in stor.vault['chats']:
             from_peer = f"from {stor.vault['chats'][peer_id]['name']}"
         elif peer_id in stor.vault['admins']:
-            from_peer = ''
+            from_peer = f"from {stor.vault['admins'][peer_id]['name']}"
         elif peer_id > 2*10**9:
             from_peer = f"from {peer_id-2*10**9}"
         else:
             from_peer = f"from {peer_id}"
 
-        if args[0].msg.from_id in stor.vault['admins'].keys():
-            user = stor.vault['admins'][args[0].msg.from_id]['name']
+        if from_id == peer_id:
+            user = ''
+        elif from_id in stor.vault['admins'].keys():
+            user = f" by {stor.vault['admins'][from_id]['name']}"
         else:
-            user = args[0].msg.from_id
+            user = f" by {from_id}"
 
-        for_log = f"({work_time}ms) {func_param} {from_peer} by {user} - {log}"
+        data_time = time.strftime("%d.%m %X")
+
+        for_log = f"({data_time} {work_time}ms) {func_param} {from_peer}{user} - {log}"
 
         await log_respond(args[0], for_log, answer, level)
         return (status, log, answer)

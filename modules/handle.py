@@ -114,7 +114,7 @@ command_dict = {
     'as' : {'obj' : do_as_someone, 'level' : 4},
     'from' : {'obj' : do_from_somewhere, 'level' : 4},
     'delete' : {'obj' : usertools.delete_message, 'level' : 4},
-    'clearchat' : {'obj' : usertools.clean_conversation, 'level' : 4}
+    'clear' : {'obj' : usertools.clean_conversation, 'level' : 4}
 
 }
 

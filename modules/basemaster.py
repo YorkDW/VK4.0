@@ -562,7 +562,7 @@ def get_admin_level(user_id):
 def is_chat_admin(user_id, peer_id):
     if user_id not in stor.vault['admins'].keys():
         return False
-    if 0 in  stor.vault['admins'][user_id]['chats'] or chat_id in stor.vault['admins'][user_id]['chats']:
+    if 0 in stor.vault['admins'][user_id]['chats'] or peer_id in stor.vault['admins'][user_id]['chats']:
         return True
     return False
 

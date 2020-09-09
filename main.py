@@ -46,9 +46,7 @@ async def main():
     logging.addLevelName(14,'BAD')
 
     base_logger = logging.getLogger('base')
-    base_logger.setLevel(10)
     command_logger = logging.getLogger('co')
-    command_logger.setLevel(10)
     utils.st.logger = command_logger
 
     stor.start_time = int(time.time())

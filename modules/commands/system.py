@@ -1,4 +1,4 @@
-import datetime, requests, logging
+import datetime, requests
 from vkwave.bots.utils.uploaders.doc_uploader import DocUploader
 from modules.commands.utils import *
 from modules.message import send_new

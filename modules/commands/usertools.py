@@ -85,7 +85,7 @@ async def find_by_text(text, peer_ids=None, user_ids=None, untouchable=None):
 async def find_by_user(api, user_id, peer_ids=None, untouchable=None):
     user_data = (await api.users.get(user_ids=user_id)).response
     name_for_find = f"{user_data.last_name} {user_data.first_name}"
-    return await find_by_text(name_for_find, peer_ids, user_id)
+    return await find_by_text(name_for_find, peer_ids, [user_id])
 
 def check_attach_type(msg, attach_type):
     return any(
@@ -202,6 +202,7 @@ async def clean_conversation(box):
     param_time = box.get_by_name("time")
     param_count = box.get_by_name("count")
     param_type = box.get_by_name("type")
+    fwd = get_first_fwd(box)
     
     till_timestamp = None
     if param_time:
@@ -216,12 +217,11 @@ async def clean_conversation(box):
             return (False, "Wrong targets", "Wrong targets")
         user_ids = box.targets
 
-    till_conv_msg_id = None
-    if box.get_by_name("till"):
-        fwd = get_first_fwd(box)
-        if not fwd:
-            return (False, "Wrong message", "Wrong message")
+    if fwd:
         till_conv_msg_id = fwd.conversation_message_id
+    else:
+        till_conv_msg_id = None
+    
 
     count = None
     if param_count:
@@ -243,7 +243,8 @@ async def clean_conversation(box):
     res = await deleter(msg_ids)
 
     if all(res):
-        return (True, "Messages deleted", "Messages deleted")
+        s = 's' if len(msg_ids) > 1 else '' 
+        return (True, f"Message{s} deleted", f"Message{s} deleted")
     else:
         return (False, "Error", "Error")
 
