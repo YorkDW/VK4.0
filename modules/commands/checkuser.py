@@ -6,7 +6,7 @@ def catch_runner(box, user_id):
     if user_id not in stor.vault['enters'].keys():
         stor.vault['enters'][user_id] = {
             'chats':[box.msg.peer_id],
-            'times':[int(time.time())+stor.time_day]
+            'times':[int(time.time())]
         }
     else:
         cur_user_enters = stor.vault['enters'][user_id]
@@ -15,6 +15,7 @@ def catch_runner(box, user_id):
         for num, expire_time in enumerate(cur_user_enters['times']):
             if expire_time < time_delete_border:
                 for_delete.append(num)
+        for_delete.reverse()
         for num in for_delete:
             cur_user_enters['chats'].pop(num)
             cur_user_enters['times'].pop(num)

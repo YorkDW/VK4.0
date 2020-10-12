@@ -51,12 +51,15 @@ async def aviable_chats(box):
         chat_id = chat['peer']['id']
         name = chat['chat_settings']['title']
         inner_name = foreign = ''
+        can_moderate = '' if chat['chat_settings']['acl']['can_moderate'] else "NO RIGHTS"
         if chat_id in stor.vault['chats'].keys():
             inner_name = f"({stor.vault['chats'][chat_id]['name']})"
         else:
             foreign = '!'
-        
-        result.append((foreign, short_chat_id, inner_name, name))
 
-    for_send = '\n'.join(map(lambda pair: f"{pair[0]} {pair[1]} {pair[2]}: {pair[3]}", result))
+        res_str = f"{foreign} {short_chat_id} {inner_name}: {name} {can_moderate}"
+        
+        result.append(res_str)
+
+    for_send = '\n'.join(result)
     return (True, f"{len(result)} chats", for_send)

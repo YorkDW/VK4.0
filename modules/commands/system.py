@@ -19,6 +19,13 @@ async def stop(box):
 async def log(box):
     if box.msg.peer_id > 2000000000:
         return (False, "Unable to send log in conversation", "You can't request logs here")
+
+    if box.param == 'file':
+        uploader = DocUploader(box.api)
+        attach = await uploader.get_attachment_from_path(box.msg.peer_id, stor.config['LOGFILE'])
+        await send_new(box.api, {"attachment":[attach]}, box.msg.peer_id)
+        return (True, "Logfile sended")
+
     try:
         count = int(box.param)
     except:
@@ -30,11 +37,12 @@ async def log(box):
     if count == 0:
         count = len(lines)
     
-    answer = ''.join(lines[len(lines)-count:])
+    answer = ''.join(lines[len(lines)-count:]) or "Empty log"
+
     return (True, "Log sended", answer)
 
 @log_and_respond_decorator
-async def clear_log(box):
+async def clear_log(box): # переделать в более интуитивное 
     try:
         count = int(box.param)
     except:

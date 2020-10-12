@@ -30,7 +30,7 @@ from modules.commands import (
     keyboard,
     config,
     chattools,
-    usertools,
+    delete,
 )
 
 @log_and_respond_decorator
@@ -113,8 +113,8 @@ command_dict = {
     'banlist' : {'obj' : system.get_banlist, 'level' : 3},
     'as' : {'obj' : do_as_someone, 'level' : 4},
     'from' : {'obj' : do_from_somewhere, 'level' : 4},
-    'delete' : {'obj' : usertools.delete_message, 'level' : 4},
-    'clear' : {'obj' : usertools.clean_conversation, 'level' : 4}
+    'delete' : {'obj' : delete.delete_message, 'level' : 4},
+    'clear' : {'obj' : delete.clean_conversation, 'level' : 4}
 
 }
 
@@ -122,7 +122,8 @@ command_dict = {
 
 async def new_user(event):
     box = DataBox(event)
-    if box.msg.action.type is MessagesMessageActionStatus.CHAT_INVITE_USER:
+    if box.msg.action.type is MessagesMessageActionStatus.CHAT_INVITE_USER\
+        or box.msg.action.type is MessagesMessageActionStatus.CHAT_INVITE_USER_BY_MESSAGE_REQUEST:
         user_id = box.msg.action.member_id
     elif box.msg.action.type is MessagesMessageActionStatus.CHAT_INVITE_USER_BY_LINK:
         user_id = box.msg.from_id
