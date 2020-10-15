@@ -42,6 +42,7 @@ def transform_peer_ids(peer_ids):
 
 # create autogenerate for user peer ids 
 
+
 async def delete_msgs_by_ids(msg_ids, cur_step=0):
     STEPS = (100, 4, 1)
     msg_ids_by_step = [msg_ids[i:i+STEPS[cur_step]] for i in range(0, len(msg_ids), STEPS[cur_step])]
@@ -85,23 +86,21 @@ def filter_msgs(msgs, params:dict):
 
     for num, msg in enumerate(msgs):
         if any([
-            params['count'] and params['count'] < num + 1,
-            params['timestamp'] and params['timestamp'] > msg.date,
-            params['conv_msg_id'] and params['conv_msg_id'] >= msg.conversation_message_id
+            params['count'] is not None and params['count'] < num + 1,
+            params['timestamp'] is not None and params['timestamp'] > msg.date,
+            params['conv_msg_id'] is not None and params['conv_msg_id'] >= msg.conversation_message_id
             ]):
                 overflow = True
-                continue
+                break
 
-        if any([
-            msg.action,
-            params['peer_ids'] and msg.peer_id not in params['peer_ids'],
-            params['untouchable'] and msg.from_id in params['untouchable'],
-            params['user_ids'] and not deep_check_msg(msg, from_user_check, params['user_ids']),
-            params['check_value'] and not deep_check_msg(msg, params['check_func'], params['check_value'])
+        if all([
+            msg.action is None,
+            params['peer_ids'] is None or msg.peer_id not in params['peer_ids'],
+            params['untouchable'] is None or msg.from_id in params['untouchable'],
+            params['user_ids'] is None or not deep_check_msg(msg, from_user_check, params['user_ids']),
+            params['check_value'] is None or not deep_check_msg(msg, params['check_func'], params['check_value'])
             ]):
-                continue
-
-        result.append(msg.id)
+                result.append(msg.id)
 
     return (result, overflow)
 
@@ -186,11 +185,16 @@ def fill_common_params(box, params):
 
     param_from = box.get_by_name("from")
     param_time = box.get_by_name("time")
+    param_type = box.get_by_name("type")
     
     if param_from:
         params['user_ids'] = box.targets
         if not params['user_ids']:
             return (False, "Wrong targets", "Wrong targets")
+
+    if param_type:
+        params['check_type'] = 'type'
+        params['check_value'] = param_type
 
     if param_time:
         seconds = str_to_sec(param_time)
@@ -214,7 +218,7 @@ async def delete_message(box):
 
     if param_text:
         params['check_type'] = 'text'
-        params['check_value'] = param_text
+        params['check_value'] = box.msg.text[box.msg.text.find("\n")+1:] or param_text
         
     elif param_by == 'text':
         fwd = get_first_fwd(box)
@@ -253,17 +257,12 @@ async def clean_conversation(box):
         return params
 
     param_count = box.get_by_name("count")
-    param_type = box.get_by_name("type")
     param_till = box.get_by_name("till")
 
     if param_count:
         if not param_count.isdigit():
             return (False, "Wrong count", "Wrong count")
         params['count'] = int(param_count)
-
-    if param_type:
-        params['check_type'] = 'type'
-        params['check_value'] = param_type
 
     if param_till:
         fwd = get_first_fwd(box)
@@ -278,6 +277,9 @@ async def clean_conversation(box):
         return (False, "Use any params", "Use any params")
 
     msg_ids = await find_from(params)
+
+    if not msg_ids:
+        return (False, "Can't find messages", "Can't find messages")
 
     errors = await delete_msgs_by_ids(msg_ids)
 
