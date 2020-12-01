@@ -63,3 +63,73 @@ async def aviable_chats(box):
 
     for_send = '\n'.join(result)
     return (True, f"{len(result)} chats", for_send)
+
+
+
+# доделать, выборка по чатам
+@log_and_respond_decorator
+async def search(box):
+    try:
+        rows = [ row.split(' ') for row in box.msg.text.lower().split('\n')[1:] ]
+        name_dict = {row[0] : tuple(row[1:]) for row in rows}
+
+    except:
+        name_dict = {}
+
+    finally:
+        if not name_dict:
+            return (False, 'Wrong names', 'Wrong names')
+    
+    await send_answer(box, 'Searching...')
+
+    chats = list(stor.vault['chats'].keys())
+
+    for_execue = [('messages.getConversationMembers', {'peer_id':chat}) for chat in chats]
+    get_members_result = await stor.execue(box.api, for_execue)
+
+    check_in = lambda items: [prof['member_id'] for prof in items]
+
+
+    result = {}
+    for i, chat in enumerate(chats):
+        if not get_members_result[i]:
+            continue
+
+        profiles = get_members_result[i]['profiles']
+        check = check_in(get_members_result[i]['items'])
+        
+        for prof in profiles:
+            if not is_wanted(prof, name_dict):
+                continue
+
+            key = f"[id{prof['id']}|{prof['last_name']} {prof['first_name']}]"
+
+            if key not in result.keys():
+                result[key] = ['--|--']
+
+            if prof['id'] in check:
+                result[key].insert(0, stor.vault['chats'][chat]['name'])
+            else:
+                result[key].append(stor.vault['chats'][chat]['name'])
+        
+    if len(result) > 0:
+        text = '\n'.join([f"{key}: {', '.join(value)}" for key, value in result.items()])
+    else:
+        text = ''
+    
+    return (True, f"{len(result)} results finded", f"{len(result)} results finded\n{text}")
+
+
+def is_wanted(prof, name_dict):
+    first = prof['first_name'].lower()
+    last = prof['last_name'].lower()
+
+    if last in name_dict.keys():
+        if first in name_dict[last] or '%' in name_dict[last]:
+            return True
+
+    if '%' in name_dict.keys():
+        if first in name_dict['%'] or '%' in name_dict['%']:
+            return True
+
+    return False

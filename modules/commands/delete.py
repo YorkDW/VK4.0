@@ -1,3 +1,5 @@
+import asyncio
+
 from modules.commands.utils import *
 from modules.commands.chattools import get_chats
 
@@ -95,10 +97,10 @@ def filter_msgs(msgs, params:dict):
 
         if all([
             msg.action is None,
-            params['peer_ids'] is None or msg.peer_id not in params['peer_ids'],
-            params['untouchable'] is None or msg.from_id in params['untouchable'],
-            params['user_ids'] is None or not deep_check_msg(msg, from_user_check, params['user_ids']),
-            params['check_value'] is None or not deep_check_msg(msg, params['check_func'], params['check_value'])
+            params['peer_ids'] is None or msg.peer_id in params['peer_ids'],
+            params['untouchable'] is None or msg.from_id not in params['untouchable'],
+            params['user_ids'] is None or deep_check_msg(msg, from_user_check, params['user_ids']),
+            params['check_value'] is None or deep_check_msg(msg, params['check_func'], params['check_value'])
             ]):
                 result.append(msg.id)
 
@@ -108,8 +110,12 @@ async def find_by(params:dict): # with search method
     if params['check_type'] == 'text':
         text_for_find = params['check_value']
     elif params['check_type'] == 'from_user':
-        user_data = (await stor.user_api.get_context().users.get(user_ids=params['check_value'][0])).response[0] # one user only 
-        text_for_find = f"{user_data.last_name} {user_data.first_name}"
+        if params['check_value'][0] > 0:
+            user_data = (await stor.user_api.get_context().users.get(user_ids=params['check_value'][0])).response[0] 
+            text_for_find = f"{user_data.last_name} {user_data.first_name}"
+        else:
+            group_data = (await stor.user_api.get_context().groups.get_by_id(group_ids=params['check_value'][0])).response[0] # one user only 
+            text_for_find = group_data.name
     else:
         raise Exception('Wrong check_type in find_by method')
     
@@ -212,7 +218,7 @@ async def delete_message(box):
     params = fill_common_params(box, get_basic_params())
     if isinstance(params, tuple):
         return params
-    params['untouchable'] = [box.event.object.group_id*-1] + list(stor.vault['admins'].keys())
+    params['untouchable'] = [stor.config['GROUP_ID']*-1] + list(stor.vault['admins'].keys())
     param_by = box.get_by_name("by")
     param_text = box.get_by_name("text")
 
@@ -285,3 +291,34 @@ async def clean_conversation(box):
 
     stat = f"{len(msg_ids)-len(errors)}/{len(msg_ids)} messages deleted"
     return (True, stat, stat)
+
+async def prolonged_delete(user, peers):
+    if user not in stor.del_message_queue.keys():
+        stor.del_message_queue[user] = {
+            'chats' : set(),
+            'last_time' : 0
+        }
+
+    cur_time = time.time()
+
+    stor.del_message_queue[user]['chats'].update(set(peers))
+    stor.del_message_queue[user]['last_time'] = cur_time
+
+    await asyncio.sleep(3)
+
+    if user not in stor.del_message_queue.keys() or stor.del_message_queue[user]['last_time'] != cur_time:
+        return
+
+    params = get_basic_params()
+    params['peer_ids'] = transform_peer_ids(stor.del_message_queue[user]['chats'])
+    params['check_type'] = 'from_user'
+    params['check_value'] = [user]
+    params['untouchable'] = [stor.config['GROUP_ID']*-1] + list(stor.vault['admins'].keys())
+
+    msg_ids = await find_by(params)
+
+    if msg_ids:
+        await delete_msgs_by_ids(msg_ids)
+
+    if stor.del_message_queue[user]['last_time'] == cur_time:
+        stor.del_message_queue.pop(user)

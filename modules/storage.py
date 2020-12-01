@@ -32,3 +32,4 @@ asyncio_loop = None
 time_day = 86400 # 60*60*24
 user_api = None
 enters = {}
+del_message_queue = {}

@@ -89,6 +89,8 @@ async def get_chat_statuses(box):
     if errors:
         return (False, errors, errors)
     
+    await base.update_vault_chats()
+
     answer = []
     for chat in box.chats:
 

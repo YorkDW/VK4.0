@@ -139,7 +139,7 @@ async def del_admin_from_chat(box):
 async def chat_and_group(box, add_or_delet):
     func = base.add_chat_to_group if add_or_delet=="add" else base.del_chat_from_group
 
-    name = box.get_by_name(name)
+    name = box.get_by_name('name')
     if not name:
         return (False, "Wrong name", "Choose name")
     if name not in stor.vault['groups'].keys():

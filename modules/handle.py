@@ -114,10 +114,14 @@ command_dict = {
     'as' : {'obj' : do_as_someone, 'level' : 4},
     'from' : {'obj' : do_from_somewhere, 'level' : 4},
     'delete' : {'obj' : delete.delete_message, 'level' : 4},
-    'clear' : {'obj' : delete.clean_conversation, 'level' : 4}
+    'clear' : {'obj' : delete.clean_conversation, 'level' : 4},
+    's' : {'obj' : chattools.search, 'level' : 4}
 
 }
 
+
+async def test(event):
+    box = DataBox(event)
 
 
 async def new_user(event):
@@ -133,7 +137,7 @@ async def simple_msg(event):
     box = DataBox(event)
     if base.is_muted(box.msg.from_id, box.msg.peer_id):
         if not base.is_chat_admin(box.msg.from_id, box.msg.peer_id):
-            await kick.execute_kicks(box.api, box.msg.peer_id, box.msg.from_id)
+            await kick.initiate_kicks(box.api, box.msg.peer_id, box.msg.from_id, msg_del=True)
 
     if box.msg.peer_id > 2*10**9:
         if box.msg.peer_id not in stor.vault['chats'].keys():
@@ -177,6 +181,12 @@ class CommandFilter(BaseFilter):
         return FilterResult(result)
 
 async def initiate_router(router):
+    # router.registrar.register(
+    #     router.registrar.new()
+    #     .handle(test)
+    #     .ready()
+    # )
+
     router.registrar.register(
         router.registrar.new()
         .with_filters(

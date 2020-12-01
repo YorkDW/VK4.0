@@ -1,8 +1,8 @@
 from modules.commands.utils import *
-from modules.commands.kick import execute_kicks
+from modules.commands.kick import initiate_kicks
 from vkwave.bots.storage.storages.ttl import TTLStorage
 
-def catch_runner(box, user_id):
+async def  exec_catch_runner(box, user_id):
     if user_id not in stor.vault['enters'].keys():
         stor.vault['enters'][user_id] = {
             'chats':[box.msg.peer_id],
@@ -29,7 +29,15 @@ def catch_runner(box, user_id):
     if count_of_enters == stor.config['MAXENTERS']:
         stor.do(send_answer(box, "You will be kicked for entering any chat in 24 hours"))
 
-    return count_of_enters > stor.config['MAXENTERS']
+    if count_of_enters == stor.config['MAXENTERS'] * 2:
+        await initiate_kicks(box.api, stor.vault['enters'][user_id]['chats'], user_id, msg_del=True)
+        return True
+
+    if count_of_enters > stor.config['MAXENTERS']:
+        await initiate_kicks(box.api, box.msg.peer_id, user_id, msg_del=True)
+        return True
+
+    return False
     
 
 @log_and_respond_decorator
@@ -41,22 +49,21 @@ async def check_all(box, user_id):
         return (False, f"New user in wrong chat")
 
     if base.is_banned(user_id, box.msg.peer_id):
-        await execute_kicks(box.api, box.msg.peer_id, user_id)
+        await initiate_kicks(box.api, box.msg.peer_id, user_id, msg_del=True)
         return (True, f"Ban was triggered")
 
     if base.is_chat_admin(box.msg.from_id, box.msg.peer_id):
         return (True, "Under admin's control")
 
     if user_id<0:
-        await execute_kicks(box.api, box.msg.peer_id, user_id)
+        await initiate_kicks(box.api, box.msg.peer_id, user_id, msg_del=True)
         return (True, f"Bot was caught at {box.msg.peer_id}", "I am the only bot here")
 
     if base.check_gate(box.msg.peer_id):
-        await execute_kicks(box.api, box.msg.peer_id, user_id)
+        await initiate_kicks(box.api, box.msg.peer_id, user_id, msg_del=True)
         return (True, f"User {user_id} kicked by closed gate at {box.msg.peer_id}", "Gate is closed")
 
-    if catch_runner(box, user_id):
-        await execute_kicks(box.api, box.msg.peer_id, user_id)
+    if await exec_catch_runner(box, user_id):
         return (True, f"Runner was caught")
 
     not_from_target = f"{user_id} " if user_id != box.msg.from_id else ''

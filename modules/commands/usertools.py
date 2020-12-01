@@ -29,10 +29,10 @@ async def transform_peer_ids_getter(box, peer_ids):
 
 def transform_peer_ids(peer_ids):
     trans_dict = {2000000001: 2000000046, 2000000002: 2000000035, 2000000003: 2000000012, 2000000077: 2000000137,
-    2000000004: 2000000022, 2000000005: 2000000015, 2000000006: 2000000030, 2000000007: 2000000029, 
-    2000000008: 2000000028, 2000000009: 2000000016, 2000000010: 2000000027, 2000000011: 2000000026, 
-    2000000012: 2000000040, 2000000013: 2000000025, 2000000014: 2000000005, 2000000015: 2000000039, 
-    2000000016: 2000000045, 2000000017: 2000000018, 2000000018: 2000000019, 2000000019: 2000000020, 
+    2000000004: 2000000022,   
+    2000000009: 2000000016, 
+    2000000012: 2000000040, 2000000014: 2000000005, 2000000015: 2000000039, 
+    2000000016: 2000000045, 2000000017: 2000000018,  2000000019: 2000000020, 
     2000000020: 2000000041, 2000000021: 2000000021, 2000000022: 2000000047, 2000000023: 2000000048, 
     2000000024: 2000000049, 2000000025: 2000000050, 2000000026: 2000000051, 2000000027: 2000000052, 
     2000000028: 2000000053, 2000000029: 2000000054, 2000000030: 2000000055, 2000000031: 2000000056, 
@@ -42,7 +42,7 @@ def transform_peer_ids(peer_ids):
     2000000044: 2000000069, 2000000045: 2000000070, 2000000046: 2000000071, 2000000047: 2000000072, 
     2000000048: 2000000073, 2000000049: 2000000074, 2000000050: 2000000075, 2000000051: 2000000076, 
     2000000053: 2000000024, 2000000055: 2000000036, 2000000056: 2000000014, 2000000057: 2000000010, 
-    2000000058: 2000000023, 2000000059: 2000000044, 2000000060: 2000000042, 2000000061: 2000000038, 
+    2000000059: 2000000044, 2000000060: 2000000042, 2000000061: 2000000038, 
     2000000062: 2000000034, 2000000063: 2000000043, 2000000064: 2000000011, 2000000065: 2000000004, 
     2000000066: 2000000037, 2000000067: 2000000017, 2000000068: 2000000013, 2000000069: 2000000008, 
     2000000070: 2000000007, 2000000071: 2000000006, 2000000072: 2000000003, 2000000073: 2000000002, 
@@ -55,6 +55,9 @@ def transform_peer_ids(peer_ids):
     2000000103: 2000000129, 2000000104: 2000000130, 2000000105: 2000000131, 2000000106: 2000000132, 
     2000000107: 2000000133, 2000000108: 2000000134, 2000000109: 2000000135, 2000000110: 2000000136
     }
+    # 2000000005: 2000000015, 2000000006: 2000000030, 2000000007: 2000000029, 2000000008: 2000000028, 
+    # 2000000010: 2000000027, 2000000011: 2000000026, 2000000013: 2000000025, 2000000058: 2000000023, 
+    # 2000000018: 2000000019,
     return [trans_dict[peer] for peer in peer_ids if peer in trans_dict.keys()]
 
 async def deleter(msg_ids):
@@ -74,7 +77,8 @@ async def find_by_text(text, peer_ids=None, user_ids=None, untouchable=None):
         if any([
             peer_ids and msg.peer_id not in peer_ids,
             user_ids and msg.from_id not in user_ids,
-            untouchable and msg.from_id in untouchable
+            untouchable and msg.from_id in untouchable,
+            msg.action
         ]):
             continue
 
@@ -83,7 +87,7 @@ async def find_by_text(text, peer_ids=None, user_ids=None, untouchable=None):
     return result
 
 async def find_by_user(api, user_id, peer_ids=None, untouchable=None):
-    user_data = (await api.users.get(user_ids=user_id)).response
+    user_data = (await api.users.get(user_ids=user_id)).response[0] # one user only 
     name_for_find = f"{user_data.last_name} {user_data.first_name}"
     return await find_by_text(name_for_find, peer_ids, [user_id])
 
@@ -169,7 +173,7 @@ async def delete_message(box):
     elif param_by == 'user':
         if not box.targets:
             return (False, "Wrong target", "Wrong target")
-        func_data.update({"func":find_by_user, "user_id":box.targets[0], "peer_ids":peer_ids})
+        func_data.update({"func":find_by_user, "api":stor.user_api.get_context(), "user_id":box.targets[0], "peer_ids":peer_ids})
 
     else:
         return (False, "Wrong param", "Wrong param")
@@ -240,6 +244,8 @@ async def clean_conversation(box):
     if not msg_ids:
         return (False, "Can't find messages", "Can't find messages")
 
+
+    
     res = await deleter(msg_ids)
 
     if all(res):

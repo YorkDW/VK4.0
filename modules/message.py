@@ -30,11 +30,21 @@ async def handle_doc(doc:DocsDoc, api): #do not work
     uploader = DocUploader(api)
     return await uploader.get_attachment_from_link(peer_id=2000000001, link = doc.url, title='test.test')
 
+async def handle_simple_attach(attach):
+    type_ = attach.type
+    owner_id = attach.__getattribute__(type_).owner_id
+    attach_id = attach.__getattribute__(type_).id
+    return f"{type_}{owner_id}_{attach_id}"
+
 async def handle_attachmen(attach:MessagesMessageAttachment, api):
     if attach.type == MessagesMessageAttachmentType.PHOTO:
         return await handle_photo(attach.photo, api)
     if attach.type == MessagesMessageAttachmentType.DOC:
         return await handle_doc(attach.doc, api)
+    if attach.type in (
+        MessagesMessageAttachmentType.POLL,
+    ):
+        return await handle_simple_attach(attach)
     return False
 
 # update, add request for full msg if possible
