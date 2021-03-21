@@ -599,7 +599,8 @@ async def handle_targets(admin_id, targets, time_):
     for num, expire_time in enumerate(cur_adm_targets['times']):
         if expire_time < time.time():
             for_delete.append(num)
-    
+    for_delete.reverse()
+
     for num in for_delete:
         cur_adm_targets['times'].pop(num)
         cur_adm_targets['users'].pop(num)

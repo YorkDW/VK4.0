@@ -114,7 +114,7 @@ async def find_by(params:dict): # with search method
             user_data = (await stor.user_api.get_context().users.get(user_ids=params['check_value'][0])).response[0] 
             text_for_find = f"{user_data.last_name} {user_data.first_name}"
         else:
-            group_data = (await stor.user_api.get_context().groups.get_by_id(group_ids=params['check_value'][0])).response[0] # one user only 
+            group_data = (await stor.user_api.get_context().groups.get_by_id(group_id=abs(params['check_value'][0]))).response[0] # one user only 
             text_for_find = group_data.name
     else:
         raise Exception('Wrong check_type in find_by method')

@@ -31,7 +31,7 @@ async def handle_doc(doc:DocsDoc, api): #do not work
     return await uploader.get_attachment_from_link(peer_id=2000000001, link = doc.url, title='test.test')
 
 async def handle_simple_attach(attach):
-    type_ = attach.type
+    type_ = attach.type.value
     owner_id = attach.__getattribute__(type_).owner_id
     attach_id = attach.__getattribute__(type_).id
     return f"{type_}{owner_id}_{attach_id}"
