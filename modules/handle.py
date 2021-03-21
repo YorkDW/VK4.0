@@ -113,8 +113,8 @@ command_dict = {
     'banlist' : {'obj' : system.get_banlist, 'level' : 3},
     'as' : {'obj' : do_as_someone, 'level' : 4},
     'from' : {'obj' : do_from_somewhere, 'level' : 4},
-    'delete' : {'obj' : delete.delete_message, 'level' : 4},
-    'clear' : {'obj' : delete.clean_conversation, 'level' : 4},
+    'delete' : {'obj' : delete.delete_message, 'level' : 2},
+    'clear' : {'obj' : delete.clean_conversation, 'level' : 2},
     's' : {'obj' : chattools.search, 'level' : 4}
 
 }
