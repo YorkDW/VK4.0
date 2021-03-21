@@ -62,7 +62,7 @@ async def delete_msgs_by_ids(msg_ids, cur_step=0):
     return await delete_msgs_by_ids(ids_with_error, cur_step+1)    
 
 def type_check(msg, attach_type):
-    return any([att.type==attach_type for att in msg.attachments])
+    return any([att.type.value==attach_type for att in msg.attachments])
 
 def text_check(msg, text):
     return text in msg.text
@@ -73,7 +73,7 @@ def from_user_check(msg, user_ids:list):
 def deep_check_msg(msg, check_func, value):
     return any([
         (deep_check_msg(msg.reply_message, check_func, value) if msg.reply_message else False),
-        ([deep_check_msg(fwd_msg, check_func, value) for fwd_msg in msg.fwd_messages] if msg.fwd_messages else []),
+        (any([deep_check_msg(fwd_msg, check_func, value) for fwd_msg in msg.fwd_messages]) if msg.fwd_messages else False),
         check_func(msg, value)
         ])
 
@@ -81,11 +81,10 @@ def filter_msgs(msgs, params:dict):
     if params['check_type'] and not params['check_func']:
         params['check_func'] = globals()[f"{params['check_type']}_check"]
 
-    
 
     result = []
     overflow = False
-
+    
     for num, msg in enumerate(msgs):
         if any([
             params['count'] is not None and params['count'] < num + 1,
@@ -122,6 +121,7 @@ async def find_by(params:dict): # with search method
     result = []
     overflow = False
     offset = 0
+
     while not overflow:
         try:
             msgs = (await stor.user_api.get_context()
@@ -152,7 +152,7 @@ async def find_from(params:dict): # with getHistory method
         try:
             msgs = (await stor.user_api.get_context().messages.get_history(peer_id=params['peer_ids'][0], offset=offset, count=200)).response.items
         except:
-            break
+            break           
 
         if not msgs:
             break
@@ -224,7 +224,7 @@ async def delete_message(box):
 
     if param_text:
         params['check_type'] = 'text'
-        params['check_value'] = box.msg.text[box.msg.text.find("\n")+1:] or param_text
+        params['check_value'] = param_text
         
     elif param_by == 'text':
         fwd = get_first_fwd(box)
